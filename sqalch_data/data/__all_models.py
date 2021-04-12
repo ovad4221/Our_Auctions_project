@@ -1,6 +1,6 @@
 import datetime
 import sqlalchemy
-from db_session import *
+from .db_session import *
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, TextAreaField, SubmitField, BooleanField

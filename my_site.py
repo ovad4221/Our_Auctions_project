@@ -20,7 +20,7 @@ api = Api(app)
 # app.jwt = JWTManager(app)
 
 app.config['SECRET_KEY'] = '#Auction%Topic%Secret$%Key!!!'
-global_init('sqlalch_data/db/mars.db')
+global_init('sqalch_data/db/main_database.db')
 
 params = {
     'title': 'Auctions',
