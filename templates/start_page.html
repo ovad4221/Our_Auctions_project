@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    <table class="table">
+        {% for auction in auctions %}
+        <h1>Ближайшие аукционы</h1>
+        <tr>
+            <h2>Auction # {{ loop.index }}</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">name</th>
+                    <th scope="col">when</th>
+                    <th scope="col">category</th>
+                    <th scope="col">entry price</th>
+                    <th scope="col">count of things</th>
+                    <th scope="col">average start price</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{auction.name}}</td>
+                    <td>{{auction.when}}</td>
+                    <td>{{auction.category.name}}</td>
+                    <td>{{auction.entry_price}}</td>
+                    <td>{{len(auction.things)}}</td>
+                    <td>{{sum([k.start_price for k in auction.things]) / len(auction.things)}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+
+            {% if current_user.is_authenticated and current_user.id == auction.creator %}
+            <div>
+                <a href="/jobs_edit/{{ work.id }}" class="btn btn-warning">
+                    Изменить
+                </a>
+                <a href="/jobs_delete/{{ work.id }}" class="btn btn-danger">
+                    Удалить
+                </a>
+            </div>
+            {% endif %}
+
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
