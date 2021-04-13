@@ -1,0 +1,37 @@
+.container {
+    max-width: 1920px;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+.header-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.button-log-in {
+    margin-right: 10px;
+}
+
+.auction-banners {
+    max-width: 900px;
+    margin: auto;
+    margin-bottom: 20px;
+}
+
+.auction-cards {
+  max-width: 1080px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 16px 16px;
+  margin-bottom: 80px;
+}
+
+.card{
+  position: relative;
+  grid-column: span 1;
+  margin: auto;
+}
+

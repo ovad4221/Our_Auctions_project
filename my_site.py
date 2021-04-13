@@ -27,15 +27,15 @@ params = {
     'style': '/static/css/style.css'
 }
 
-login_manager = LoginManager()
-login_manager.init_app(app)
+# login_manager = LoginManager()
+# login_manager.init_app(app)
 
 
 @app.route('/')
 @app.route('/index')
 def start():
     db_sess = create_session()
-    return render_template('start_page.html', **params)
+    return render_template('main_page.html', **params)
 
 
 if __name__ == '__main__':
