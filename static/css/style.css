@@ -35,3 +35,51 @@
   margin: auto;
 }
 
+.auction {
+  max-width: 1080px;
+  margin: auto;
+}
+
+.auction-title {
+  text-align: center;
+}
+
+.auction-things-title {
+  margin-left: 20px;
+  margin-bottom: 16px;
+}
+
+.auction-thing-cards {
+  max-height: 720px;
+  overflow: scroll;
+}
+
+.auction-thing-cards {
+  max-width: 1080px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 16px 16px;
+  margin-bottom: 30px;
+}
+
+.auction-thing-card {
+  position: relative;
+  grid-column: span 1;
+  margin: auto;
+}
+
+.auction-thing-count, .auction-user-count {
+  width: 100%;
+  text-align: right;
+}
+
+.auction-action-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.auction-action-button {
+  margin: 10px;
+}

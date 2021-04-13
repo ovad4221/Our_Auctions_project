@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="auction">
+        <h2 class="auction-title">
+            Аукцион
+        </h2>
+        <h3 class="auction-things-title">
+            Товары:
+        </h3>
+        <div class="auction-thing-cards">
+          <div class="auction-thing-card" style="width: 18rem;">
+          <img src="{{ url_for('static', filename='images/thing.png')}}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <h5 class="card-title auction-thing-card-price">Текущая цена: 500$</h5>
+            <a href="#" class="btn btn-primary">Перейти</a>
+          </div>
+          </div>
+
+          <div class="auction-thing-card" style="width: 18rem;">
+          <img src="{{ url_for('static', filename='images/thing.png')}}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <h5 class="card-title auction-thing-card-price">Текущая цена: 500$</h5>
+            <a href="#" class="btn btn-primary">Перейти</a>
+          </div>
+          </div>
+
+          <div class="auction-thing-card" style="width: 18rem;">
+          <img src="{{ url_for('static', filename='images/thing.png')}}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <h5 class="card-title auction-thing-card-price">Текущая цена: 500$</h5>
+            <a href="#" class="btn btn-primary">Перейти</a>
+          </div>
+          </div>
+
+          <div class="auction-thing-card" style="width: 18rem;">
+          <img src="{{ url_for('static', filename='images/thing.png')}}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <h5 class="card-title auction-thing-card-price">Текущая цена: 500$</h5>
+            <a href="#" class="btn btn-primary">Перейти</a>
+          </div>
+          </div>
+
+          <div class="auction-thing-card" style="width: 18rem;">
+          <img src="{{ url_for('static', filename='images/thing.png')}}" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Card title</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <h5 class="card-title auction-thing-card-price">Текущая цена: 500$</h5>
+            <a href="#" class="btn btn-primary">Перейти</a>
+          </div>
+          </div>
+
+        </div>
+        <h4 class="auction-thing-count">Всего товаров: 5</h4>
+        <h4 class="auction-user-count">Всего участников: 17</h4>
+        <div class="auction-action-buttons">
+          <button type="button" class="btn btn-primary btn-lg auction-action-button">Зарегистрироваться на аукцион</button>
+          <button type="button" class="btn btn-primary btn-lg auction-action-button">Выставить товар</button>
+          <button type="button" class="btn btn-primary btn-lg auction-action-button">Оставить отзыв</button>
+        </div>
+
+    </div>
+{% endblock %}
