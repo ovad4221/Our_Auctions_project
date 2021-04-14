@@ -3,27 +3,25 @@ from sqalch_data.data.__all_models import *
 from flask_jwt_extended import jwt_required
 
 
-class UserResource(Resource):
+class ReviewResource(Resource):
     @jwt_required()
-    def get(self, user_id):
-        db_sess = create_session()
-        user = db_sess.query(User).filter()
-        return
+    def get(self):
+        pass
 
     @jwt_required()
     def post(self):
         pass
 
     @jwt_required()
-    def put(self, user_id):
+    def put(self):
         pass
 
     @jwt_required()
-    def delete(self, user_id):
+    def delete(self):
         pass
 
 
-class UserListResource(Resource):
+class ReviewListResource(Resource):
     @jwt_required()
     def get(self):
         pass
