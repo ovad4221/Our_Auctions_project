@@ -63,16 +63,17 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     # как это сделать описано ниже
     is_prime = sqlalchemy.Column(sqlalchemy.BOOLEAN, default=False)
 
-    review_id = sqlalchemy.Column(sqlalchemy.Integer,
-                                  sqlalchemy.ForeignKey("reviews.id"), nullable=True)
-    review = orm.relation('Review')
+    reviews = orm.relation('Review', back_populates='creator')
 
     # создавать свой аукцион может только проверенный пользователь
     # проверенным называется пользователь, совершивший не меньше 30 покупок
     # и выставивший не меньше 20 вещей (поле is_prime)
     # или админ(id = 1)
-    auction = orm.relation("Auction", back_populates='creator')
+    auctions = orm.relation("Auction", back_populates='creator')
+
+    # необходимо сделать еще загрузку файла, пока что пропустим
     photos = orm.relation("Photo", back_populates='user')
+
     things = orm.relation("Thing", back_populates='user')
 
     def set_password(self, password):
@@ -171,7 +172,10 @@ class Review(SqlAlchemyBase, SerializerMixin):
     content = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     auctions = orm.relation("Auction", back_populates='review')
-    user = orm.relation("User", back_populates='review')
+
+    creator_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                   sqlalchemy.ForeignKey("users.id"))
+    creator = orm.relation("User")
 
 
 class Ready(SqlAlchemyBase, SerializerMixin):

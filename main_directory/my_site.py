@@ -8,19 +8,18 @@ from sqalch_data.data.__all_models import *
 import json
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 import datetime
-from flask_jwt_simple import JWTManager
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 api = Api(app)
-# app.config[
-#     'JWT_SECRET_KEY'] = 'Its_a_secret_key)#Это_очень!!длинная?и+секретнаяЁЁстрокаэ/|для2343подписи^^^токена#!'
-# app.config['JWT_EXPIRES'] = datetime.timedelta(hours=24)
-# app.config['JWT_IDENTITY_CLAIM'] = 'user'
-# app.config['JWT_HEADER_NAME'] = 'authorization'
-# app.jwt = JWTManager(app)
+app.config[
+    'JWT_SECRET_KEY'] = 'Its_a_secret_key)#Это_очень!!длинная?и+секретнаяЁЁстрокаэ/|для2343подписи^^^токена#!'
+app.config['JWT_EXPIRES'] = datetime.timedelta(hours=24)
+app.config['JWT_IDENTITY_CLAIM'] = 'user'
+app.config['JWT_HEADER_NAME'] = 'authorization'
+app.jwt = JWTManager(app)
 
 app.config['SECRET_KEY'] = '#Auction%Topic%Secret$%Key!!!'
-global_init('sqalch_data/db/main_database.db')
 
 params = {
     'title': 'Auctions',
