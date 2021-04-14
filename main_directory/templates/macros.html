@@ -1,0 +1,11 @@
+{% macro field(fld, type='text') -%}
+    <p>
+        {{ fld.label }}<br>
+        {{ fld(class="form-control", type=type) }}<br>
+        {% for error in fld.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+ {%- endmacro %}
