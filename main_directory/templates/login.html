@@ -1,18 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Регистрация</h1>
+<h1>Авторизация</h1>
 <form action="" method="post">
     {{ form.hidden_tag() }}
     {% import 'macros.html' as field %}
     {{ field.field(form.email, 'email') }}
-    {{ field.field(form.surname) }}
-    {{ field.field(form.name) }}
-    {{ field.field(form.patronymic) }}
-    {{ field.field(form.age, type=int) }}
-    {{ field.field(form.position) }}
     {{ field.field(form.password, type='password') }}
-    {{ field.field(form.password_again, type='password') }}
+    <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 </form>
