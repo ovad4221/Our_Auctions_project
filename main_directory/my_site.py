@@ -85,6 +85,13 @@ def login():
     return render_template('login.html', form=form, **params1)
 
 
+@app.route('/account', methods=['GET', 'POST'])
+def account():
+    params1 = params.copy()
+    params1['title'] = 'Аккаунт'
+    return render_template('account.html', **params1)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = create_session()

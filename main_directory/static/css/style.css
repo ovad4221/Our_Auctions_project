@@ -49,12 +49,12 @@
   margin-bottom: 16px;
 }
 
-.auction-thing-cards {
+.auction-thing-cards, .account-thing-cards {
   max-height: 720px;
   overflow: scroll;
 }
 
-.auction-thing-cards {
+.auction-thing-cards, .account-thing-cards {
   max-width: 1080px;
   margin: auto;
   display: grid;
@@ -88,3 +88,9 @@
     max-width: 1080px;
     margin: auto;
 }
+
+.account {
+    max-width: 1080px;
+    margin: auto;
+}
+
