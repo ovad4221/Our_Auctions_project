@@ -83,3 +83,8 @@
 .auction-action-button {
   margin: 10px;
 }
+
+.reg-log-form {
+    max-width: 1080px;
+    margin: auto;
+}

@@ -72,6 +72,6 @@ class UserListResource(Resource):
             user.hashed_password = args.hashed_password
             db_sess.add(user)
             db_sess.commit()
-            return jsonify({'message': {'name': 'user not found'}})
+            return jsonify({'message': {'success': 'ok'}})
         except sqlalchemy.exc.IntegrityError:
             return jsonify({'message': {'name': 'user with this email already exists'}})

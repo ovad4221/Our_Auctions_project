@@ -8,13 +8,18 @@ from pure_api.sqalch_data.data.__all_models import *
 import json
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 import datetime
+from models import *
+from requests import get, put, post, delete
+from werkzeug.security import generate_password_hash
+from main_directory.encode_token_function import make_request
 
 app = Flask(__name__)
-
 params = {
     'title': 'Auctions',
     'style': '/static/css/style.css'
 }
+
+app.config['SECRET_KEY'] = '#Auction%Topic%Secret$%Key!!!'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -34,34 +39,38 @@ def auction_page():
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
+    params1 = params.copy()
+    params1['title'] = 'Регистрация'
     form = RegisterUser()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('rega.html', title='Регистрация',
+            return render_template('rega.html',
                                    form=form,
-                                   message="Пароли не совпадают")
-        db_sess = create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('rega.html', title='Регистрация',
+                                   message="Пароли не совпадают", **params1)
+
+        query = post('http://127.0.0.1:5000/api/users',
+             json=make_request({'email': form.email.data,
+                                'name': form.name.data,
+                                'surname': form.surname.data,
+                                'patronymic': form.patronymic.data,
+                                'age': form.age.data,
+                                'position': form.position.data,
+                                'hashed_password': generate_password_hash(form.password.data)})).json()
+
+        if not 'success' in query['message']:
+            return render_template('rega.html',
                                    form=form,
-                                   message="Такой пользователь уже есть")
-        user = User(
-            surname=form.surname.data,
-            name=form.name.data,
-            patronymic=form.patronymic.data,
-            age=form.age.data,
-            position=form.position.data,
-            email=form.email.data
-        )
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
+                                   message=query['message']['name'], **params1)
+
         return redirect('/login')
-    return render_template('rega.html', title='Регистрация', form=form)
+
+    return render_template('rega.html', form=form, **params1)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    params1 = params.copy()
+    params1['title'] = 'Авторизация'
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = create_session()
@@ -71,14 +80,22 @@ def login():
             return redirect("/")
         return render_template('login.html',
                                message="Неправильный логин или пароль",
-                               form=form)
-    return render_template('login.html', title='Авторизация', form=form)
+                               form=form, **params1)
+
+    return render_template('login.html', form=form, **params1)
 
 
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = create_session()
     return db_sess.query(User).get(user_id)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 if __name__ == '__main__':
