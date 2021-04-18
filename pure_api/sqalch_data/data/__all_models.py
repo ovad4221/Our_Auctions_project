@@ -109,13 +109,12 @@ class Lot(SqlAlchemyBase, SerializerMixin):
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     start_price = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=False)
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    buyer_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
 
     auction_id = sqlalchemy.Column(sqlalchemy.Integer,
                                    sqlalchemy.ForeignKey("auctions.id"))
     auction = orm.relation('Auction')
 
-    bayer = sqlalchemy.Column(sqlalchemy.Integer,
-                                sqlalchemy.ForeignKey("users.id"))
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relation('User')
