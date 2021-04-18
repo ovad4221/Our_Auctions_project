@@ -6,7 +6,7 @@ from werkzeug.security import check_password_hash
 import datetime
 
 blueprint = Blueprint(
-    'jobs_api',
+    'blueprints_dop_functions',
     __name__,
     template_folder='templates'
 )
@@ -19,7 +19,7 @@ def check_user_po_email(user_email):
         db_sess = create_session()
         user = db_sess.query(User).filter(User.email == user_email).first()
         assert user
-        if check_password_hash(user.hashed_password, request.json['password']):
+        if user.check_password(request.json['password']):
             return jsonify({'message': {'success': 'ok'}})
         else:
             return jsonify({'message': {'name': 'invalid password'}})
@@ -28,7 +28,6 @@ def check_user_po_email(user_email):
 
 
 @blueprint.route('/api/users_from_email/<user_email>', methods=['GET'])
-@secure_check
 def id_from_email(user_email):
     try:
         db_sess = create_session()
@@ -37,4 +36,3 @@ def id_from_email(user_email):
         return jsonify({'id': user.id})
     except AssertionError:
         return jsonify({'message': {'name': 'user not found'}})
-

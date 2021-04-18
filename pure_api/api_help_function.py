@@ -21,3 +21,8 @@ def secure_check(func):
 
     return ready_func
 
+
+def check_si(string):
+    str1 = ''.join(string.split()[0].split('.'))
+    return str1.isdigit()
+

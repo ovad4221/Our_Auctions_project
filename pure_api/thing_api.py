@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
-from api_help_function import secure_check
+from api_help_function import secure_check, check_si
 from all_parsers import parser_thing, parser_thing_put
 
 
@@ -12,12 +12,13 @@ class ThingResource(Resource):
             db_sess = create_session()
             thing = db_sess.query(Thing).get(thing_id)
             assert thing
-            photos = [photo.id for photo in thing.photos]
+            payload = dict()
+            payload['photos'] = [photo.id for photo in thing.photos]
             return jsonify(
-                {'thing': dict(list(thing.to_dict(only=(
-                    'name', 'weight', 'height', 'long', 'width', 'about', 'colour', 'start_price', 'count',
-                    'bought', 'created_date', 'user_id', 'auction_id')).iteams()) + list(
-                    {'photos': photos}.items()))})
+                {'thing': dict(tuple(thing.to_dict(only=(
+                    'name', 'weight', 'height', 'long', 'width', 'about', 'colour', 'price', 'count',
+                    'bought', 'created_date', 'user_id')).items()) + tuple(
+                    payload.items()))})
         except AssertionError:
             return jsonify({'message': {'name': 'thing not found'}})
 
@@ -27,20 +28,17 @@ class ThingResource(Resource):
             data = parser_thing_put.parse_args().data
             db_sess = create_session()
             thing = db_sess.query(Thing).get(thing_id)
-            who_is_not_found = 'thing'
-            assert thing
+            assert thing, 'thing'
             for key in data:
                 if key in ['name', 'weight', 'height', 'long', 'width', 'about', 'colour', 'start_price',
                            'price', 'count', 'bought', 'user_id', 'auction_id']:
                     if key == 'user_id':
                         user = db_sess.query(User).get(data['user_id'])
-                        who_is_not_found = 'user'
-                        assert user
+                        assert user, 'user'
                         thing.user = user
                     elif key == 'auction_id':
                         auction = db_sess.query(Auction).get(data['auction_id'])
-                        who_is_not_found = 'auction'
-                        assert auction
+                        assert auction, 'auction'
                         thing.auction = auction
                     else:
                         exec(f'thing.{key}=data[key]')
@@ -50,8 +48,8 @@ class ThingResource(Resource):
                     return jsonify({'message': {'name': 'thing have no this property'}})
             db_sess.commit()
             return jsonify({'message': {'success': 'ok'}})
-        except AssertionError:
-            return jsonify({'message': {'name': f'{who_is_not_found} not found'}})
+        except AssertionError as e:
+            return jsonify({'message': {'name': f'{str(e)} not found'}})
 
     @secure_check
     def delete(self, thing_id):
@@ -76,23 +74,21 @@ class ThingListResource(Resource):
             return jsonify({'message': {'name': 'invalid parameters'}})
         ids = request.json['ids']
         db_sess = create_session()
-        id_not_found = -1
         payload = {'things': []}
         try:
             for thing_id in ids:
-                id_not_found = thing_id
                 thing = db_sess.query(Thing).get(thing_id)
-                assert thing
+                assert thing, str(thing_id)
                 if thing.photos:
                     photo_id = thing.photos[0].id
                 else:
                     photo_id = -1
-                payload['things'].append(dict(list(thing.to_dict(
-                    only=('name', 'about', 'start_price', 'count')).items()) + list(
+                payload['things'].append(dict(tuple(thing.to_dict(
+                    only=('name', 'about', 'start_price', 'count')).items()) + tuple(
                     {'photo': photo_id}.items())))
             return jsonify(payload)
-        except AssertionError:
-            return jsonify({'message': {'name': f'{id_not_found} user not found'}})
+        except AssertionError as e:
+            return jsonify({'message': {'name': f'{str(e)} user not found'}})
 
     @secure_check
     def post(self):
@@ -101,21 +97,30 @@ class ThingListResource(Resource):
             db_sess = create_session()
             thing = Thing()
             thing.name = args.name
+            if args.weight != 'not stated':
+                assert check_si(args.weight), 'invalid form of weight'
             thing.weight = args.weight
+            if args.height != 'not stated':
+                assert check_si(args.height), 'invalid form of height'
             thing.height = args.height
+            if args.long != 'not stated':
+                assert check_si(args.long), 'invalid form of long'
             thing.long = args.long
+            if args.width != 'not stated':
+                assert check_si(args.width), 'invalid form of width'
             thing.width = args.width
             thing.about = args.about
             thing.colour = args.colour
-            thing.start_price = thing.price = args.start_price
+            assert check_si(args.price), 'invalid form of price'
+            thing.price = args.price
             thing.count = args.count
 
             user = db_sess.query(User).get(args.user_id)
-            assert user
+            assert user, 'user not found'
             thing.user = user
 
             db_sess.add(thing)
             db_sess.commit()
             return jsonify({'message': {'success': 'ok'}})
-        except AssertionError:
-            return jsonify({'message': {'name': 'user not found'}})
+        except AssertionError as e:
+            return jsonify({'message': {'name': str(e)}})

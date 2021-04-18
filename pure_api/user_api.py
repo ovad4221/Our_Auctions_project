@@ -17,10 +17,12 @@ class UserResource(Resource):
             payload['auctions'] = [auction.id for auction in user.auctions]
             payload['photos'] = [photo.id for photo in user.photos]
             payload['things'] = [thing.id for thing in user.things]
+            payload['lots'] = [lot.id for lot in user.lots]
+            payload['requisites'] = [requisite.id for requisite in user.requisites]
             return jsonify(
                 {'user': dict(
-                    list(user.to_dict(only=('email', 'name', 'surname', 'patronymic', 'age', 'position',
-                                            'created_date', 'is_prime')).items()) + list(payload.items()))})
+                    tuple(user.to_dict(only=('email', 'name', 'surname', 'patronymic', 'age', 'position',
+                                             'created_date', 'is_prime')).items()) + tuple(payload.items()))})
         except AssertionError:
             return jsonify({'message': {'name': 'user not found'}})
 
@@ -68,23 +70,21 @@ class UserListResource(Resource):
             return jsonify({'message': {'name': 'invalid parameters'}})
         ids = request.json['ids']
         db_sess = create_session()
-        id_not_found = -1
         payload = {'users': []}
         try:
             for user_id in ids:
-                id_not_found = user_id
                 user = db_sess.query(User).get(user_id)
-                assert user
+                assert user, str(user_id)
                 if user.photos:
                     photo_id = user.photos[0].id
                 else:
                     photo_id = -1
-                payload['users'].append(dict(list(user.to_dict(
-                    only=('email', 'name', 'surname', 'patronymic')).items()) + list(
+                payload['users'].append(dict(tuple(user.to_dict(
+                    only=('email', 'name', 'surname', 'patronymic')).items()) + tuple(
                     {'photo': photo_id}.items())))
             return jsonify(payload)
-        except AssertionError:
-            return jsonify({'message': {'name': f'{id_not_found} user not found'}})
+        except AssertionError as e:
+            return jsonify({'message': {'name': f'{str(e)} user not found'}})
 
     @secure_check
     def post(self):
@@ -98,7 +98,7 @@ class UserListResource(Resource):
             user.age = args.age
             user.email = args.email
             user.position = args.position
-            user.hashed_password = args.hashed_password
+            user.set_password(args.password)
             db_sess.add(user)
             db_sess.commit()
             return jsonify({'message': {'success': 'ok'}})

@@ -8,7 +8,7 @@ from main_directory.encode_token_function import make_request
 #                               'surname': 'Afinsky',
 #                               'age': 24,
 #                               'position': 'filosaf',
-#                               'hashed_password': generate_password_hash('qwerty123')})).json())
+#                               'password': 'qwerty123'})).json())
 
 # print(get('http://127.0.0.1:5000/api/users/2', json=make_request({})).json())
 
@@ -17,20 +17,20 @@ from main_directory.encode_token_function import make_request
 
 # print(delete('http://127.0.0.1:5000/api/users/2', json=make_request({})).json())
 
-# print(get('http://127.0.0.1:5000/api/users/yang_aristotel@mail.ru',
+# print(get('http://127.0.0.1:5000/api/users_questions/yang_aristotel@mail.ru',
 #           json=make_request({'password': 'qwerty123'})).json())
 
 # print(post('http://127.0.0.1:5000/api/things',
 #            json=make_request({
 #                'name': 'Bluetooth душ',
-#                'weight': 700,
-#                'long': 20,
-#                'width': 4,
+#                'weight': '300 гр',
+#                'long': '20 см',
+#                'width': '4 см',
 #                'about': 'Вот так вот',
 #                'colour': 'white',
-#                'start_price': 10000,
+#                'price': '10000 ₽',
 #                'count': 1,
-#                'user_id': 2})).json())
+#                'user_id': 1})).json())
 
 # print(put('http://127.0.0.1:5000/api/things/1',
 #           json=make_request({'data': {'name': 'Огромный розовый член'}})).json())
@@ -38,3 +38,5 @@ from main_directory.encode_token_function import make_request
 # print(delete('http://127.0.0.1:5000/api/things/1', json=make_request({})).json())
 
 # print(get('http://127.0.0.1:5000/api/things', json=make_request({'ids': [1, 2]})).json())
+# print(get('http://127.0.0.1:5000/api/things/1', json=make_request({})).json())
+
