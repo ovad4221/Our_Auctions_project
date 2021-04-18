@@ -1,5 +1,4 @@
-from flask import jsonify
-import sqlalchemy
+from flask import jsonify, request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
 from api_help_function import secure_check
@@ -13,8 +12,17 @@ class UserResource(Resource):
             db_sess = create_session()
             user = db_sess.query(User).get(user_id)
             assert user
+            payload = dict()
+            payload['reviews'] = [review.id for review in user.reviews]
+            payload['auctions'] = [auction.id for auction in user.auctions]
+            payload['photos'] = [photo.id for photo in user.photos]
+            payload['things'] = [thing.id for thing in user.things]
+            payload['lots'] = [lot.id for lot in user.lots]
+            payload['requisites'] = [requisite.id for requisite in user.requisites]
             return jsonify(
-                {'user': user.to_dict(only=('email', 'name', 'surname', 'patronymic', 'age', 'position'))})
+                {'user': dict(
+                    tuple(user.to_dict(only=('email', 'name', 'surname', 'patronymic', 'age', 'position',
+                                             'created_date', 'is_prime')).items()) + tuple(payload.items()))})
         except AssertionError:
             return jsonify({'message': {'name': 'user not found'}})
 
@@ -55,7 +63,28 @@ class UserResource(Resource):
 class UserListResource(Resource):
     @secure_check
     def get(self):
-        pass
+        # получает {'ids': [1, 2, 3, 4, 5, 6...]}
+        if not request.json:
+            return jsonify({'message': {'name': 'empty request'}})
+        if 'ids' not in request.json:
+            return jsonify({'message': {'name': 'invalid parameters'}})
+        ids = request.json['ids']
+        db_sess = create_session()
+        payload = {'users': []}
+        try:
+            for user_id in ids:
+                user = db_sess.query(User).get(user_id)
+                assert user, str(user_id)
+                if user.photos:
+                    photo_id = user.photos[0].id
+                else:
+                    photo_id = -1
+                payload['users'].append(dict(tuple(user.to_dict(
+                    only=('email', 'name', 'surname', 'patronymic')).items()) + tuple(
+                    {'photo': photo_id}.items())))
+            return jsonify(payload)
+        except AssertionError as e:
+            return jsonify({'message': {'name': f'{str(e)} user not found'}})
 
     @secure_check
     def post(self):
@@ -69,7 +98,7 @@ class UserListResource(Resource):
             user.age = args.age
             user.email = args.email
             user.position = args.position
-            user.hashed_password = args.hashed_password
+            user.set_password(args.password)
             db_sess.add(user)
             db_sess.commit()
             return jsonify({'message': {'success': 'ok'}})

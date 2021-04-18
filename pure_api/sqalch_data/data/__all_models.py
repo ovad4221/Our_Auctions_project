@@ -2,11 +2,10 @@ import datetime
 import sqlalchemy
 from .db_session import *
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
 from sqlalchemy_serializer import SerializerMixin
 
 
-class User(SqlAlchemyBase, UserMixin, SerializerMixin):
+class User(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
@@ -40,12 +39,29 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     photos = orm.relation("Photo", back_populates='user')
 
     things = orm.relation("Thing", back_populates='user')
+    lots = orm.relation("Lot", back_populates='user')
+    requisites = orm.relation("Requisite", back_populates='user')
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
+
+
+class Requisite(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'requisites'
+
+    id = sqlalchemy.Column(sqlalchemy.Integer,
+                           primary_key=True, autoincrement=True)
+
+    full_name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    phone = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    card_number = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+
+    user_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                sqlalchemy.ForeignKey("users.id"))
+    user = orm.relation('User')
 
 
 class Thing(SqlAlchemyBase, SerializerMixin):
@@ -55,14 +71,13 @@ class Thing(SqlAlchemyBase, SerializerMixin):
                            primary_key=True, autoincrement=True)
 
     name = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=False)
-    weight = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    height = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    long = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    width = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    weight = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    height = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    long = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    width = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     colour = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    start_price = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=False)
-    price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    price = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=False)
     count = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
 
     bought = sqlalchemy.Column(sqlalchemy.BOOLEAN, default=False)
@@ -73,10 +88,38 @@ class Thing(SqlAlchemyBase, SerializerMixin):
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relation('User')
     photos = orm.relation('Photo')
-    # может не сработать нуллебел
+
+
+lots_to_things_table = sqlalchemy.Table(
+    'lots_to_things',
+    SqlAlchemyBase.metadata,
+    sqlalchemy.Column('lots', sqlalchemy.Integer,
+                      sqlalchemy.ForeignKey('lots.id')),
+    sqlalchemy.Column('things', sqlalchemy.Integer,
+                      sqlalchemy.ForeignKey('things.id'))
+)
+
+
+class Lot(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'lots'
+
+    id = sqlalchemy.Column(sqlalchemy.Integer,
+                           primary_key=True, autoincrement=True)
+
+    about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    start_price = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=False)
+    price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    buyer_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+
     auction_id = sqlalchemy.Column(sqlalchemy.Integer,
-                                   sqlalchemy.ForeignKey("auctions.id"), nullable=True)
+                                   sqlalchemy.ForeignKey("auctions.id"))
     auction = orm.relation('Auction')
+
+    user_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                sqlalchemy.ForeignKey("users.id"))
+    user = orm.relation('User')
+
+    things = orm.relation("Thing", secondary="lots_to_things", backref="lots")
 
 
 class Photo(SqlAlchemyBase):
@@ -126,7 +169,7 @@ class Auction(SqlAlchemyBase, SerializerMixin):
                                   sqlalchemy.ForeignKey("reviews.id"), nullable=True)
     review = orm.relation('Review')
 
-    things = orm.relation("Thing", back_populates='auction')
+    things = orm.relation("Lot", back_populates='auction')
 
 
 class Review(SqlAlchemyBase, SerializerMixin):

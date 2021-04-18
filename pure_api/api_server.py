@@ -5,6 +5,7 @@ from category_api import *
 from photo_api import *
 from ready_api import *
 from review_api import *
+import blueprints_dop_functions
 
 from flask import Flask
 from flask_restful import Api
@@ -14,6 +15,8 @@ app = Flask(__name__)
 api = Api(app)
 
 global_init('../pure_api/sqalch_data/db/main_database.db')
+
+app.register_blueprint(blueprints_dop_functions.blueprint)
 
 api.add_resource(UserResource, '/api/users/<int:user_id>')
 api.add_resource(UserListResource, '/api/users')
