@@ -12,6 +12,7 @@ from models import *
 from requests import get, put, post, delete
 from werkzeug.security import generate_password_hash
 from main_directory.encode_token_function import make_request
+from current_user_class import User
 
 app = Flask(__name__)
 params = {
@@ -73,13 +74,15 @@ def login():
     params1['title'] = 'Авторизация'
     form = LoginForm()
     if form.validate_on_submit():
-        db_sess = create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
-        if user and user.check_password(form.password.data):
+
+        is_password_true = get(f'http://127.0.0.1:5000//api/users_questions/{form.email.data}',
+                               json=make_request({'password': form.password.data})).json()['message']
+        if 'success' in is_password_true:
+            user = User(form.email.data)
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
         return render_template('login.html',
-                               message="Неправильный логин или пароль",
+                               message=is_password_true['name'],
                                form=form, **params1)
 
     return render_template('login.html', form=form, **params1)
@@ -93,9 +96,8 @@ def account():
 
 
 @login_manager.user_loader
-def load_user(user_id):
-    db_sess = create_session()
-    return db_sess.query(User).get(user_id)
+def load_user(user_email):
+    return 'Cock'
 
 
 @app.route('/logout')
