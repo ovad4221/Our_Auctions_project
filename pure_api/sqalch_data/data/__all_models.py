@@ -122,7 +122,7 @@ class Lot(SqlAlchemyBase, SerializerMixin):
     things = orm.relation("Thing", secondary="lots_to_things", backref="lots")
 
 
-class Photo(SqlAlchemyBase):
+class Photo(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'photos'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
@@ -165,10 +165,7 @@ class Auction(SqlAlchemyBase, SerializerMixin):
     # категория аукциона: машины, старинное и тд
     category = orm.relation('Category')
 
-    review_id = sqlalchemy.Column(sqlalchemy.Integer,
-                                  sqlalchemy.ForeignKey("reviews.id"), nullable=True)
-    review = orm.relation('Review')
-
+    review = orm.relation('Review', back_populates='auction')
     things = orm.relation("Lot", back_populates='auction')
 
 
@@ -179,7 +176,9 @@ class Review(SqlAlchemyBase, SerializerMixin):
                            primary_key=True, autoincrement=True)
     content = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
-    auctions = orm.relation("Auction", back_populates='review')
+    auction_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                   sqlalchemy.ForeignKey("auctions.id"))
+    auction = orm.relation('Auction')
 
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                    sqlalchemy.ForeignKey("users.id"))

@@ -60,6 +60,25 @@ class PhotoResource(Resource):
 
 class PhotoListResource(Resource):
     @secure_check
+    def get(self):
+        # получает {'ids': [1, 2, 3, 4, 5, 6...]}
+        if not request.json:
+            return jsonify({'message': {'name': 'empty request'}})
+        if 'ids' not in request.json:
+            return jsonify({'message': {'name': 'invalid parameters'}})
+        ids = request.json['ids']
+        db_sess = create_session()
+        payload = {'photos': []}
+        try:
+            for photo_id in ids:
+                photo = db_sess.query(Photo).get(photo_id)
+                assert photo, str(photo_id)
+                payload['photos'].append(photo.to_dict(only=('link',)))
+            return jsonify(payload)
+        except AssertionError as e:
+            return jsonify({'message': {'name': f'{str(e)} photo not found'}})
+
+    @secure_check
     def post(self):
         try:
             args = parser_photo.parse_args()
