@@ -2,7 +2,7 @@ from flask import jsonify, request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
 from api_help_function import secure_check
-from all_parsers import parser_user, parser_user_put
+from all_parsers import parser_user, parser_put
 
 
 class UserResource(Resource):
@@ -29,7 +29,7 @@ class UserResource(Resource):
     @secure_check
     def put(self, user_id):
         try:
-            data = parser_user_put.parse_args().data
+            data = parser_put.parse_args().data
             db_sess = create_session()
             user = db_sess.query(User).get(user_id)
             assert user
