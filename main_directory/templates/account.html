@@ -3,11 +3,11 @@
 {% block content %}
 {% if current_user.is_authenticated %}
 <div class="account">
-    <h1 class="account-name">{{ current_user.name }} {{ current_user.surname }} {{ current_user.patronymic }}</h1>
+    <h1 class="account-name">{{ current_user.name }} {{ current_user.surname }} {% if current_user.patronymic != 'not_indicated'%} {{ current_user.patronymic }} {% endif %}</h1>
     <h2 class="account-email">Email: {{ current_user.email }}</h2>
     <h2 class="account-age">Age: {{ current_user.age }}</h2>
     <h2 class="account-position">Position: {{ current_user.position }}</h2>
-    <h2 class="my-things">Мои товары: </h2>
+    <h2 class="my-things">Мои товары: <a class="btn btn-outline-dark plus-button" href="/add_thing" role="button">+</a></h2>
     <div class="account-things">
         <div class="account-thing-cards">
           <div class="auction-thing-card" style="width: 18rem;">
