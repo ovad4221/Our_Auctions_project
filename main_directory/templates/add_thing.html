@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="reg-log-form">
+    <h1>Добавление товара</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {% import 'macros.html' as field %}
+    {{ field.field(form.name) }}
+    <div class="row">
+        <div class="col-9">
+        {{ field.field(form.height) }}
+        {{ field.field(form.width) }}
+        {{ field.field(form.long) }}
+        </div>
+        <div class="col-3 add-metric">
+        {{ field.field(form.units_size) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-9">
+        {{ field.field(form.weight) }}
+        </div>
+        <div class="col-3 add-metric">
+        {{ field.field(form.units_mass) }}
+        </div>
+    </div>
+
+    {{ field.field(form.about) }}
+    {{ field.field(form.colour) }}
+
+    <div class="row">
+        <div class="col-9">
+        {{ field.field(form.price) }}
+        </div>
+        <div class="col-3 add-metric">
+        {{ field.field(form.units_money) }}
+        </div>
+    </div>
+
+    {{ field.field(form.count) }}
+
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+</div>
+{% endblock %}

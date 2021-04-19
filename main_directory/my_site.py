@@ -88,6 +88,31 @@ def login():
     return render_template('login.html', form=form, **params1)
 
 
+@app.route('/add_thing', methods=['GET', 'POST'])
+def add_thing():
+    params1 = params.copy()
+    params1['title'] = 'Добавление вещи'
+    form = AddThing()
+    if form.validate_on_submit():
+        add_thing_request = post('http://127.0.0.1:5000/api/things',
+            json=make_request({
+                'name': form.name.data,
+                'weight': str(form.weight.data) + ' ' + form.units_mass.data,
+                'long': str(form.long.data) + ' ' + form.units_size.data,
+                'width': str(form.width.data) + ' ' + form.units_size.data,
+                'height': str(form.height.data) + ' ' + form.units_size.data,
+                'about': form.about.data,
+                'colour': form.colour.data,
+                'price': str(form.price.data) + ' ' + form.units_money.data,
+                'count': form.price.data,
+                'user_id': current_user.id})).json()['message']
+        if 'success' in add_thing_request:
+            return redirect("/account")
+        return render_template('add_thing.html',
+                               form=form, **params1, message=add_thing_request['name'])
+    return render_template('add_thing.html', form=form, **params1)
+
+
 @app.route('/account', methods=['GET', 'POST'])
 def account():
     params1 = params.copy()

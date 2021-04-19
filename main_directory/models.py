@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, TextAreaField, SubmitField, BooleanField
+from wtforms import PasswordField, StringField, TextAreaField, SubmitField, BooleanField, SelectField, FloatField
 from wtforms.fields.html5 import EmailField, IntegerField
 from wtforms.validators import DataRequired
+import sqlalchemy
+import datetime
 
 
 class RegisterUser(FlaskForm):
@@ -26,12 +28,24 @@ class LoginForm(FlaskForm):
 
 
 class AddThing(FlaskForm):
-    team_leader = IntegerField('Лидер команды')
-    job = TextAreaField("Содержание")
-    work_size = IntegerField("На сколько работа в часах")
-    collaborators = StringField("Поле для хранения id работников")
-    category = IntegerField("Category")
-    # можно запариться и сделать здесь разные слова
-    submit = SubmitField('Дальше')
+    ed_izm_size = ['м', 'см', 'дюйм', 'фут']
+    ed_izm_mass = ['кг', 'г', 'т', 'фунт']
+    ed_izm_money = ['$', '€', '₽']
+
+    name = StringField('Название: ', validators=[DataRequired()])
+    height = FloatField("Высота: ")
+    width = FloatField("Ширина: ")
+    long = FloatField("Длина: ")
+    units_size = SelectField('Единицы измерения размеров: ', choices=ed_izm_size)
+    weight = FloatField("Масса: ")
+    units_mass = SelectField('Единицы измерения массы: ', choices=ed_izm_mass)
+    about = TextAreaField("Описание: ")
+    colour = StringField('Цвет: ')
+    price = FloatField('Цена: ', validators=[DataRequired()])
+    units_money = SelectField('Валюта: ', choices=ed_izm_money)
+    count = IntegerField('Кол-во: ', validators=[DataRequired()])
+    created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
+
+    submit = SubmitField('Добавить')
 
 
