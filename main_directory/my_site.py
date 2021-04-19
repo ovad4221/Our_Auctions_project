@@ -96,8 +96,10 @@ def account():
 
 
 @login_manager.user_loader
-def load_user(user_email):
-    return 'Cock'
+def load_user(user_id):
+    info = get(f'http://127.0.0.1:5000/api/users/{user_id}', json=make_request({})).json()['user']
+    user = User(info['email'])
+    return user
 
 
 @app.route('/logout')
