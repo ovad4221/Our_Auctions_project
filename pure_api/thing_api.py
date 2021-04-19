@@ -2,7 +2,7 @@ from flask import jsonify, request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
 from api_help_function import secure_check, check_si
-from all_parsers import parser_thing, parser_thing_put
+from all_parsers import parser_thing, parser_put
 
 
 class ThingResource(Resource):
@@ -25,7 +25,7 @@ class ThingResource(Resource):
     @secure_check
     def put(self, thing_id):
         try:
-            data = parser_thing_put.parse_args().data
+            data = parser_put.parse_args().data
             db_sess = create_session()
             thing = db_sess.query(Thing).get(thing_id)
             assert thing, 'thing'
