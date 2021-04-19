@@ -121,6 +121,6 @@ class ThingListResource(Resource):
 
             db_sess.add(thing)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok', 'thing_id': thing.id}})
         except AssertionError as e:
             return jsonify({'message': {'name': str(e)}})
