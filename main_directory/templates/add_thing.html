@@ -40,8 +40,9 @@
     </div>
 
     {{ field.field(form.count) }}
+    <input type="file" class="form-control-file" id="photo" name="file">
 
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary", method='POST') }}</p>
     {{message}}
 </form>
 </div>

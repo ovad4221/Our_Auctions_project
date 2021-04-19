@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, TextAreaField, SubmitField, BooleanField, SelectField, FloatField
+from wtforms import PasswordField, StringField,\
+    TextAreaField, SubmitField, BooleanField, SelectField, FloatField, MultipleFileField
 from wtforms.fields.html5 import EmailField, IntegerField
 from wtforms.validators import DataRequired
 import sqlalchemy
@@ -44,6 +45,7 @@ class AddThing(FlaskForm):
     price = FloatField('Цена: ', validators=[DataRequired()])
     units_money = SelectField('Валюта: ', choices=ed_izm_money)
     count = IntegerField('Кол-во: ', validators=[DataRequired()])
+    # photos = MultipleFileField('Загрузите фото товара: ')
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
     submit = SubmitField('Добавить')

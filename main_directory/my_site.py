@@ -13,6 +13,7 @@ from requests import get, put, post, delete
 from werkzeug.security import generate_password_hash
 from main_directory.encode_token_function import make_request
 from current_user_class import User
+import os
 
 app = Flask(__name__)
 params = {
@@ -21,6 +22,7 @@ params = {
 }
 
 app.config['SECRET_KEY'] = '#Auction%Topic%Secret$%Key!!!'
+app.config['UPLOAD_FOLDER'] = '/static/images/thing_user_images'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -106,6 +108,12 @@ def add_thing():
                 'count': form.price.data,
                 'user_id': current_user.id})).json()['message']
         if 'success' in add_thing_request:
+            th_id = add_thing_request['thing_id']
+            if request.method == 'POST':
+
+                print(request.files['file'])
+                # file = request.files['file']
+
             return redirect("/account")
         return render_template('add_thing.html',
                                form=form, **params1, message=add_thing_request['name'])
