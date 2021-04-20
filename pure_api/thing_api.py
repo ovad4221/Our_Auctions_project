@@ -84,7 +84,7 @@ class ThingListResource(Resource):
                 else:
                     photo_id = -1
                 payload['things'].append(dict(tuple(thing.to_dict(
-                    only=('name', 'about', 'start_price', 'count')).items()) + tuple(
+                    only=('id', 'name', 'about', 'price', 'count')).items()) + tuple(
                     {'photo': photo_id}.items())))
             return jsonify(payload)
         except AssertionError as e:

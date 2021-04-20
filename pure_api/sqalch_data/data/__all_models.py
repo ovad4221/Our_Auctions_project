@@ -106,9 +106,10 @@ class Lot(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
 
+    name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    start_price = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=False)
-    price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    start_price = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=False)
+    price = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     buyer_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
 
     auction_id = sqlalchemy.Column(sqlalchemy.Integer,

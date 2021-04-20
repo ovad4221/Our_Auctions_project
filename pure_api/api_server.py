@@ -5,6 +5,8 @@ from category_api import *
 from photo_api import *
 from ready_api import *
 from review_api import *
+from lot_api import *
+from requisite_api import *
 import blueprints_dop_functions
 
 from flask import Flask
@@ -23,6 +25,9 @@ api.add_resource(UserListResource, '/api/users')
 
 api.add_resource(ThingResource, '/api/things/<int:thing_id>')
 api.add_resource(ThingListResource, '/api/things')
+
+api.add_resource(LotResource, '/api/lots/<int:lot_id>')
+api.add_resource(LotListResource, '/api/lots')
 
 api.add_resource(AuctionResource, '/api/auctions/<int:auction_id>')
 api.add_resource(AuctionListResource, '/api/auctions')
