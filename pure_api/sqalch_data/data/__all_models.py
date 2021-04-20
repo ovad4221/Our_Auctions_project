@@ -106,9 +106,10 @@ class Lot(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
 
+    name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    start_price = sqlalchemy.Column(sqlalchemy.Integer, index=True, nullable=False)
-    price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    start_price = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=False)
+    price = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     buyer_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
 
     auction_id = sqlalchemy.Column(sqlalchemy.Integer,
@@ -122,7 +123,7 @@ class Lot(SqlAlchemyBase, SerializerMixin):
     things = orm.relation("Thing", secondary="lots_to_things", backref="lots")
 
 
-class Photo(SqlAlchemyBase):
+class Photo(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'photos'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
@@ -165,10 +166,7 @@ class Auction(SqlAlchemyBase, SerializerMixin):
     # категория аукциона: машины, старинное и тд
     category = orm.relation('Category')
 
-    review_id = sqlalchemy.Column(sqlalchemy.Integer,
-                                  sqlalchemy.ForeignKey("reviews.id"), nullable=True)
-    review = orm.relation('Review')
-
+    review = orm.relation('Review', back_populates='auction')
     things = orm.relation("Lot", back_populates='auction')
 
 
@@ -179,7 +177,9 @@ class Review(SqlAlchemyBase, SerializerMixin):
                            primary_key=True, autoincrement=True)
     content = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
-    auctions = orm.relation("Auction", back_populates='review')
+    auction_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                   sqlalchemy.ForeignKey("auctions.id"))
+    auction = orm.relation('Auction')
 
     creator_id = sqlalchemy.Column(sqlalchemy.Integer,
                                    sqlalchemy.ForeignKey("users.id"))

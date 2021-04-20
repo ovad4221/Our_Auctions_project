@@ -88,7 +88,7 @@ class ThingListResource(Resource):
                     {'photo': photo_id}.items())))
             return jsonify(payload)
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} user not found'}})
+            return jsonify({'message': {'name': f'{str(e)} thing not found'}})
 
     @secure_check
     def post(self):
