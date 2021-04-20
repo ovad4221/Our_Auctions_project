@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="reg-log-form">
+    <h1>Добавление / Редактирование лота</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {% import 'macros.html' as field %}
+    {{ field.field(form.name) }}
+    {{ field.field(form.about) }}
+
+    <div class="row">
+        <div class="col-9">
+        {{ field.field(form.price) }}
+        </div>
+        <div class="col-3 add-metric">
+        {{ field.field(form.units_money) }}
+        </div>
+    </div>
+
+  <h2 class="add-thing-into-lot">Добавить товар в лот: <a class="btn btn-outline-dark plus-button" href="/add_thing_to_lot" role="button">+</a></h2>
+  <div class="account-things">
+        <div class="account-thing-cards">
+            {% for thing in things %}
+          <div class="auction-thing-card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">{{thing.name}}</h5>
+            <p class="card-text">{{thing.about}}</p>
+            <p class="card-text">Цена: {{thing.price}}</p>
+            <p class="card-text">Кол-во: {{thing.count}}</p>
+            <a href="/add_thing_to_lot/{{thing.id}}" class="btn btn-primary">Добавить</a>
+          </div>
+          </div>
+            {% endfor %}
+
+          </div>
+    </div>
+
+    <p>{{ form.submit(type="submit", class="btn btn-primary", method='POST') }}</p>
+    {{message}}
+</form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="reg-log-form">
+    <h1>Добавление вещи в лот</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {% import 'macros.html' as field %}
+    {{ field.field(form.count) }}
+
+
+    <p>{{ form.submit(type="submit", class="btn btn-primary", method='POST') }}</p>
+    {{message}}
+</form>
+</div>
+{% endblock %}

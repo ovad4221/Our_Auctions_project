@@ -163,6 +163,25 @@ def edit_thing(id):
     return render_template('add_thing.html', form=form, **params1)
 
 
+@app.route('/add_lot', methods=['GET', 'POST'])
+def add_lot():
+    params1 = params.copy()
+    params1['title'] = 'Добавление вещи'
+    form = LotForm()
+    user_things_id = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
+                         json=make_request({})).json()['user']['things']
+    things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_things_id})).json()['things']
+    return render_template('add_lot.html', form=form, **params1, things=things)
+
+
+@app.route('/add_thing_to_lot/<int:id>', methods=['GET', 'POST'])
+def add_thing_to_lot(id):
+    params1 = params.copy()
+    params1['title'] = 'Добавление вещи в лот'
+    form = AddThingToLot()
+    return render_template('add_thing_to_lot.html', form=form, **params1)
+
+
 @app.route('/account', methods=['GET', 'POST'])
 def account():
     params1 = params.copy()

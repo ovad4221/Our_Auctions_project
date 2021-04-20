@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField,\
-    TextAreaField, SubmitField, BooleanField, SelectField, FloatField, MultipleFileField
+    TextAreaField, SubmitField, BooleanField, SelectField, FloatField
 from wtforms.fields.html5 import EmailField, IntegerField
 from wtforms.validators import DataRequired
 import sqlalchemy
@@ -50,4 +50,20 @@ class AddThing(FlaskForm):
 
     submit = SubmitField('Принять')
 
+
+class LotForm(FlaskForm):
+    ed_izm_money = ['$', '€', '₽']
+
+    name = StringField('Название: ', validators=[DataRequired()])
+    about = TextAreaField("Описание: ")
+    price = FloatField('Стартовая цена: ')
+    units_money = SelectField('Валюта: ', choices=ed_izm_money)
+
+    submit = SubmitField('Принять')
+
+
+class AddThingToLot(FlaskForm):
+    count = StringField('Количество: ', validators=[DataRequired()])
+
+    submit = SubmitField('Принять')
 
