@@ -105,18 +105,61 @@ def add_thing():
                 'about': form.about.data,
                 'colour': form.colour.data,
                 'price': str(form.price.data) + ' ' + form.units_money.data,
-                'count': form.price.data,
+                'count': form.count.data,
                 'user_id': current_user.id})).json()['message']
         if 'success' in add_thing_request:
-            th_id = add_thing_request['thing_id']
-            if request.method == 'POST':
-
-                print(request.files['file'])
-                # file = request.files['file']
-
             return redirect("/account")
         return render_template('add_thing.html',
                                form=form, **params1, message=add_thing_request['name'])
+    return render_template('add_thing.html', form=form, **params1)
+
+
+@app.route('/edit_thing/<int:id>', methods=['GET', 'POST'])
+def edit_thing(id):
+    params1 = params.copy()
+    params1['title'] = 'Редактирование вещи'
+    form = AddThing()
+    if request.method == "GET":
+        edit_thing = get(f'http://127.0.0.1:5000/api/things/{id}', json=make_request({})).json()['thing']
+        form.name.data = edit_thing['name']
+
+        form.height.data = edit_thing['height'].split()[0]
+        form.width.data = edit_thing['width'].split()[0]
+        form.long.data = edit_thing['long'].split()[0]
+
+        form.units_size.data = edit_thing['height'].split()[1]
+
+        form.weight.data = edit_thing['weight'].split()[0]
+
+        form.units_mass.data = edit_thing['weight'].split()[1]
+
+        form.about.data = edit_thing['about']
+        form.colour.data = edit_thing['colour']
+
+        form.price.data = edit_thing['price'].split()[0]
+
+        form.units_money.data = edit_thing['price'].split()[1]
+
+        form.count.data = edit_thing['count']
+
+    if form.validate_on_submit():
+        edit_thing_request = put(f'http://127.0.0.1:5000/api/things/{id}',
+                                 json=make_request({'data': {
+                                     'name': form.name.data,
+                                     'weight': str(form.weight.data) + ' ' + form.units_mass.data,
+                                     'long': str(form.long.data) + ' ' + form.units_size.data,
+                                     'width': str(form.width.data) + ' ' + form.units_size.data,
+                                     'height': str(form.height.data) + ' ' + form.units_size.data,
+                                     'about': form.about.data,
+                                     'colour': form.colour.data,
+                                     'price': str(form.price.data) + ' ' + form.units_money.data,
+                                     'count': form.count.data,
+                                     'user_id': current_user.id}})).json()['message']
+        if 'success' in edit_thing_request:
+            return redirect("/account")
+        return render_template('add_thing.html',
+                               form=form, **params1, message=edit_thing_request['name'])
+
     return render_template('add_thing.html', form=form, **params1)
 
 
@@ -124,7 +167,11 @@ def add_thing():
 def account():
     params1 = params.copy()
     params1['title'] = 'Аккаунт'
-    return render_template('account.html', **params1)
+    user_things_id = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
+               json=make_request({})).json()['user']['things']
+    things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_things_id})).json()['things']
+
+    return render_template('account.html', **params1, things=things)
 
 
 @login_manager.user_loader

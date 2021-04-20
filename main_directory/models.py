@@ -48,6 +48,6 @@ class AddThing(FlaskForm):
     # photos = MultipleFileField('Загрузите фото товара: ')
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
-    submit = SubmitField('Добавить')
+    submit = SubmitField('Принять')
 
 

@@ -10,141 +10,19 @@
     <h2 class="my-things">Мои товары: <a class="btn btn-outline-dark plus-button" href="/add_thing" role="button">+</a></h2>
     <div class="account-things">
         <div class="account-thing-cards">
+            {% for thing in things %}
           <div class="auction-thing-card" style="width: 18rem;">
-          <img src="{{ url_for('static', filename='images/thing.png')}}" class="card-img-top" alt="...">
           <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="btn btn-primary">Перейти</a>
-              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@getbootstrap">Выставить</button>
+            <h5 class="card-title">{{thing.name}}</h5>
+            <p class="card-text">{{thing.about}}</p>
+            <p class="card-text">Цена: {{thing.price}}</p>
+            <p class="card-text">Кол-во: {{thing.count}}</p>
+            <a href="/edit_thing/{{thing.id}}" class="btn btn-primary">Редактировать</a>
+          </div>
+          </div>
+            {% endfor %}
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Выставить товар на аукцион</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="mb-3">
-            <label for="recipient-name" class="col-form-label">Цена</label>
-            <input type="text" class="form-control" id="recipient-name">
           </div>
-          <div class="mb-3">
-            <label for="message-text" class="col-form-label">Описание</label>
-            <textarea class="form-control" id="message-text"></textarea>
-          </div>
-            <div class="mb-3">
-                <select class="form-select" aria-label="Default select example">
-                     <option selected>Выберите аукцион</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
-            </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-        <button type="button" class="btn btn-primary">Выставить</button>
-      </div>
-    </div>
-  </div>
-</div>
-          </div>
-          </div>
-
-          <div class="auction-thing-card" style="width: 18rem;">
-          <img src="{{ url_for('static', filename='images/thing.png')}}" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="btn btn-primary">Перейти</a>
-              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@getbootstrap">Выставить</button>
-
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Выставить товар на аукцион</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="mb-3">
-            <label for="recipient-name" class="col-form-label">Цена</label>
-            <input type="text" class="form-control" id="recipient-name">
-          </div>
-          <div class="mb-3">
-            <label for="message-text" class="col-form-label">Описание</label>
-            <textarea class="form-control" id="message-text"></textarea>
-          </div>
-            <div class="mb-3">
-                <select class="form-select" aria-label="Default select example">
-                     <option selected>Выберите аукцион</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
-            </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-        <button type="button" class="btn btn-primary">Выставить</button>
-      </div>
-    </div>
-  </div>
-</div>
-          </div>
-          </div>
-
-          <div class="auction-thing-card" style="width: 18rem;">
-          <img src="{{ url_for('static', filename='images/thing.png')}}" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="btn btn-primary">Перейти</a>
-              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@getbootstrap">Выставить</button>
-
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Выставить товар на аукцион</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="mb-3">
-            <label for="recipient-name" class="col-form-label">Цена</label>
-            <input type="text" class="form-control" id="recipient-name">
-          </div>
-          <div class="mb-3">
-            <label for="message-text" class="col-form-label">Описание</label>
-            <textarea class="form-control" id="message-text"></textarea>
-          </div>
-            <div class="mb-3">
-                <select class="form-select" aria-label="Default select example">
-                     <option selected>Выберите аукцион</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                </select>
-            </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-        <button type="button" class="btn btn-primary">Выставить</button>
-      </div>
-    </div>
-  </div>
-</div>
-          </div>
-    </div>
-</div>
     </div>
 
 

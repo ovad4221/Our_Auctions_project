@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="reg-log-form">
-    <h1>Добавление товара</h1>
+    <h1>Добавление / Редактирование товара</h1>
 <form action="" method="post">
     {{ form.hidden_tag() }}
     {% import 'macros.html' as field %}
@@ -40,7 +40,6 @@
     </div>
 
     {{ field.field(form.count) }}
-    <input type="file" class="form-control-file" id="photo" name="file">
 
     <p>{{ form.submit(type="submit", class="btn btn-primary", method='POST') }}</p>
     {{message}}
