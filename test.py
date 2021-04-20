@@ -39,3 +39,4 @@ from main_directory.encode_token_function import make_request
 # print(get('http://127.0.0.1:5000/api/things', json=make_request({'ids': [1, 2]})).json())
 # print(get('http://127.0.0.1:5000/api/things/1', json=make_request({})).json())
 
+# print(get('http://127.0.0.1:4010/get_password', json={'password_check': 'cock'}).json()['token'])
