@@ -2,7 +2,7 @@ from flask import jsonify, request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
 from api_help_function import secure_check, check_si
-from all_parsers import parser_thing, parser_put
+from all_parsers import parser_thing, parser_put, parser_for_thi_lot
 
 
 class ThingResource(Resource):
@@ -14,6 +14,7 @@ class ThingResource(Resource):
             assert thing
             payload = dict()
             payload['photos'] = [photo.id for photo in thing.photos]
+            payload['lots'] = [elem.lot_id for elem in thing.thi_lo_bits]
             return jsonify(
                 {'thing': dict(tuple(thing.to_dict(only=(
                     'name', 'weight', 'height', 'long', 'width', 'about', 'colour', 'price', 'count',
@@ -24,6 +25,8 @@ class ThingResource(Resource):
 
     @secure_check
     def put(self, thing_id):
+        # можно обращаться по lot_id, это добавит вещь в лот,
+        # а соответственно к вещи лот (need to add json with count)
         try:
             data = parser_put.parse_args().data
             db_sess = create_session()
@@ -41,10 +44,17 @@ class ThingResource(Resource):
                     auction = db_sess.query(Auction).get(data['auction_id'])
                     assert auction, 'auction'
                     thing.auction = auction
+
                 elif key == 'lot_id':
-                    lot = db_sess.query(Lot).get(data['lot_id'])
+                    lot = db_sess.query(Lot).get(data[key])
                     assert lot, 'lot'
-                    thing.lot = lot
+                    count = parser_for_thi_lot.parse_args().count
+                    l_t_c = LotThingConnect()
+                    l_t_c.count_thing = count
+                    l_t_c.thing = thing
+                    l_t_c.lot = lot
+                    db_sess.add(l_t_c)
+
                 else:
                     if key in ['created_date', 'id']:
                         return jsonify({'message': {'name': 'some of these properties cannot be changed'}})

@@ -13,7 +13,7 @@ class LotResource(Resource):
             lot = db_sess.query(Lot).get(lot_id)
             assert lot, 'lot not found'
             payload = dict()
-            payload['things'] = [thing.id for thing in lot.things]
+            payload['things'] = [elem.thing_id for elem in lot.lo_thi_bits]
             return jsonify({'lot': dict(
                 tuple(lot.to_dict(only=(
                     'name', 'about', 'start_price', 'price', 'buyer_id', 'auction_id',
@@ -82,6 +82,7 @@ class LotListResource(Resource):
 
     @secure_check
     def post(self):
+        # на подачу так же идет json с списком (list_ids) пар (id, count)
         try:
             args = parser_lot.parse_args()
             db_sess = create_session()
@@ -89,6 +90,17 @@ class LotListResource(Resource):
             lot.name = args.name
             if args.about:
                 lot.about = args.about
+
+            assert request.json, 'empty request'
+            assert 'list_ids' in request.json, 'invalid parameters'
+            for thing_id, count in request.json['list_ids']:
+                thing = db_sess.query(Thing).get(thing_id)
+                assert thing, f'{thing_id} thing not found'
+                l_t_c = LotThingConnect()
+                l_t_c.count_thing = count
+                l_t_c.thing = thing
+                l_t_c.lot = lot
+                db_sess.add(l_t_c)
 
             assert check_si(args.start_price), 'invalid form of price'
             lot.start_price = lot.price = args.start_price
