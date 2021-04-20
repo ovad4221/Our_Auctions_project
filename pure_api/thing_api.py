@@ -31,17 +31,20 @@ class ThingResource(Resource):
             assert thing, 'thing'
             for key in data:
                 if key in ['name', 'weight', 'height', 'long', 'width', 'about', 'colour', 'start_price',
-                           'price', 'count', 'bought', 'user_id', 'auction_id']:
-                    if key == 'user_id':
-                        user = db_sess.query(User).get(data['user_id'])
-                        assert user, 'user'
-                        thing.user = user
-                    elif key == 'auction_id':
-                        auction = db_sess.query(Auction).get(data['auction_id'])
-                        assert auction, 'auction'
-                        thing.auction = auction
-                    else:
-                        exec(f'thing.{key}=data[key]')
+                           'price', 'count', 'bought']:
+                    exec(f'thing.{key}=data[key]')
+                elif key == 'user_id':
+                    user = db_sess.query(User).get(data['user_id'])
+                    assert user, 'user'
+                    thing.user = user
+                elif key == 'auction_id':
+                    auction = db_sess.query(Auction).get(data['auction_id'])
+                    assert auction, 'auction'
+                    thing.auction = auction
+                elif key == 'lot_id':
+                    lot = db_sess.query(Lot).get(data['lot_id'])
+                    assert lot, 'lot'
+                    thing.lot = lot
                 else:
                     if key in ['created_date', 'id']:
                         return jsonify({'message': {'name': 'some of these properties cannot be changed'}})
