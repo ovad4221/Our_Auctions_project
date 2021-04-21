@@ -44,17 +44,17 @@ class ThingResource(Resource):
                     auction = db_sess.query(Auction).get(data['auction_id'])
                     assert auction, 'auction'
                     thing.auction = auction
-
                 elif key == 'lot_id':
                     lot = db_sess.query(Lot).get(data[key])
                     assert lot, 'lot'
                     count = parser_for_thi_lot.parse_args().count
+                    sum_ca = sum([thi_lo_bit.count for thi_lo_bit in thing.thi_lo_bits])
+                    assert sum_ca + count <= thing.count, f'{count + sum_ca - thing.count} objects'
                     l_t_c = LotThingConnect()
                     l_t_c.count_thing = count
                     l_t_c.thing = thing
                     l_t_c.lot = lot
                     db_sess.add(l_t_c)
-
                 else:
                     if key in ['created_date', 'id']:
                         return jsonify({'message': {'name': 'some of these properties cannot be changed'}})
@@ -70,6 +70,8 @@ class ThingResource(Resource):
             db_sess = create_session()
             thing = db_sess.query(Thing).get(thing_id)
             assert thing
+            for thi_lo_bit in thing.thi_lo_bits:
+                db_sess.delete(thi_lo_bit)
             db_sess.delete(thing)
             db_sess.commit()
             return jsonify({'message': {'success': 'ok'}})

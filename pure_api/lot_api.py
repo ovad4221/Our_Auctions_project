@@ -53,6 +53,8 @@ class LotResource(Resource):
             db_sess = create_session()
             lot = db_sess.query(Lot).get(lot_id)
             assert lot
+            for lo_thi_bit in lot.lo_thi_bits:
+                db_sess.delete(lo_thi_bit)
             db_sess.delete(lot)
             db_sess.commit()
             return jsonify({'message': {'success': 'ok'}})
@@ -96,6 +98,8 @@ class LotListResource(Resource):
             for thing_id, count in request.json['list_ids']:
                 thing = db_sess.query(Thing).get(thing_id)
                 assert thing, f'{thing_id} thing not found'
+                sum_ca = sum([thi_lo_bit.count for thi_lo_bit in thing.thi_lo_bits])
+                assert sum_ca + count <= thing.count, f'{count + sum_ca - thing.count} objects'
                 l_t_c = LotThingConnect()
                 l_t_c.count_thing = count
                 l_t_c.thing = thing
