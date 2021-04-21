@@ -87,17 +87,36 @@ class Thing(SqlAlchemyBase, SerializerMixin):
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relation('User')
-    photos = orm.relation('Photo')
+    photos = orm.relation('Photo', back_populates='thing')
+
+    thi_lo_bits = orm.relation('LotThingConnect', back_populates='thing')
 
 
-lots_to_things_table = sqlalchemy.Table(
-    'lots_to_things',
-    SqlAlchemyBase.metadata,
-    sqlalchemy.Column('lots', sqlalchemy.Integer,
-                      sqlalchemy.ForeignKey('lots.id')),
-    sqlalchemy.Column('things', sqlalchemy.Integer,
-                      sqlalchemy.ForeignKey('things.id'))
-)
+# lots_to_things_table = sqlalchemy.Table(
+#     'lots_to_things',
+#     SqlAlchemyBase.metadata,
+#     sqlalchemy.Column('lots', sqlalchemy.Integer,
+#                       sqlalchemy.ForeignKey('lots.id')),
+#     sqlalchemy.Column('things', sqlalchemy.Integer,
+#                       sqlalchemy.ForeignKey('things.id'))
+# )
+
+
+class LotThingConnect(SqlAlchemyBase):
+    __tablename__ = 'lots_to_things'
+
+    id = sqlalchemy.Column(sqlalchemy.Integer,
+                           primary_key=True, autoincrement=True)
+
+    count_thing = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+
+    thing_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                 sqlalchemy.ForeignKey("things.id"), nullable=False)
+    thing = orm.relation('Thing')
+
+    lot_id = sqlalchemy.Column(sqlalchemy.Integer,
+                               sqlalchemy.ForeignKey("lots.id"), nullable=False)
+    lot = orm.relation('Lot')
 
 
 class Lot(SqlAlchemyBase, SerializerMixin):
@@ -110,7 +129,7 @@ class Lot(SqlAlchemyBase, SerializerMixin):
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     start_price = sqlalchemy.Column(sqlalchemy.String, index=True, nullable=False)
     price = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    buyer_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    buyer_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
 
     auction_id = sqlalchemy.Column(sqlalchemy.Integer,
                                    sqlalchemy.ForeignKey("auctions.id"))
@@ -120,7 +139,7 @@ class Lot(SqlAlchemyBase, SerializerMixin):
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relation('User')
 
-    things = orm.relation("Thing", secondary="lots_to_things", backref="lots")
+    lo_thi_bits = orm.relation('LotThingConnect', back_populates='lot')
 
 
 class Photo(SqlAlchemyBase, SerializerMixin):

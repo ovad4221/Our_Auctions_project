@@ -53,3 +53,6 @@ parser_lot.add_argument('about', required=False, type=str)
 parser_lot.add_argument('start_price', required=True, type=str)
 parser_lot.add_argument('user_id', required=True, type=int)
 
+# help
+parser_for_thi_lot = RequestParser()
+parser_for_thi_lot.add_argument('count', required=True, type=int)
