@@ -16,9 +16,9 @@ class ReviewResource(Resource):
                 'content': review.content,
                 'auction_id': review.auction_id,
                 'creator_id': review.creator_id
-            })
+            }), 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}})
+            return jsonify({'message': {'name': str(e)}}), 404
 
     @secure_check
     def put(self, review_id):
@@ -39,11 +39,11 @@ class ReviewResource(Resource):
                     assert creator, 'creator not found'
                     review.creator = creator
                 else:
-                    return jsonify({'message': {'name': 'review have no this property'}})
+                    return jsonify({'message': {'name': 'review have no this property'}}), 405
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok'}}), 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}})
+            return jsonify({'message': {'name': str(e)}}), 404
 
     @secure_check
     def delete(self, review_id):
@@ -53,9 +53,9 @@ class ReviewResource(Resource):
             assert review
             db_sess.delete(review)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok'}}), 200
         except AssertionError:
-            return jsonify({'message': {'name': 'review not found'}})
+            return jsonify({'message': {'name': 'review not found'}}), 404
 
 
 class ReviewListResource(Resource):
@@ -63,9 +63,9 @@ class ReviewListResource(Resource):
     def get(self):
         # получает {'ids': [1, 2, 3, 4, 5, 6...]}
         if not request.json:
-            return jsonify({'message': {'name': 'empty request'}})
+            return jsonify({'message': {'name': 'empty request'}}), 400
         if 'ids' not in request.json:
-            return jsonify({'message': {'name': 'invalid parameters'}})
+            return jsonify({'message': {'name': 'invalid parameters'}}), 400
         ids = request.json['ids']
         db_sess = create_session()
         payload = {'reviews': []}
@@ -74,9 +74,9 @@ class ReviewListResource(Resource):
                 review = db_sess.query(Review).get(review_id)
                 assert review, str(review_id)
                 payload['photos'].append(review.to_dict(only=('content',)))
-            return jsonify(payload)
+            return jsonify(payload), 200
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} review  not found'}})
+            return jsonify({'message': {'name': f'{str(e)} review  not found'}}), 404
 
     @secure_check
     def post(self):
@@ -96,6 +96,6 @@ class ReviewListResource(Resource):
 
             db_sess.add(review)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok'}}), 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}})
+            return jsonify({'message': {'name': str(e)}}), 404

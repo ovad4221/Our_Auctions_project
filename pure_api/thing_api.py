@@ -19,9 +19,9 @@ class ThingResource(Resource):
                 {'thing': dict(tuple(thing.to_dict(only=(
                     'name', 'weight', 'height', 'long', 'width', 'about', 'colour', 'price', 'count',
                     'bought', 'created_date', 'user_id')).items()) + tuple(
-                    payload.items()))})
+                    payload.items()))}), 200
         except AssertionError:
-            return jsonify({'message': {'name': 'thing not found'}})
+            return jsonify({'message': {'name': 'thing not found'}}), 404
 
     @secure_check
     def put(self, thing_id):
@@ -57,12 +57,13 @@ class ThingResource(Resource):
                     db_sess.add(l_t_c)
                 else:
                     if key in ['created_date', 'id']:
-                        return jsonify({'message': {'name': 'some of these properties cannot be changed'}})
-                    return jsonify({'message': {'name': 'thing have no this property'}})
+                        return jsonify(
+                            {'message': {'name': 'some of these properties cannot be changed'}}), 403
+                    return jsonify({'message': {'name': 'thing have no this property'}}), 405
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok'}}), 200
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} not found'}})
+            return jsonify({'message': {'name': f'{str(e)} not found'}}), 404
 
     @secure_check
     def delete(self, thing_id):
@@ -74,9 +75,9 @@ class ThingResource(Resource):
                 db_sess.delete(thi_lo_bit)
             db_sess.delete(thing)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok'}}), 200
         except AssertionError:
-            return jsonify({'message': {'name': 'thing not found'}})
+            return jsonify({'message': {'name': 'thing not found'}}), 404
 
 
 class ThingListResource(Resource):
@@ -84,9 +85,9 @@ class ThingListResource(Resource):
     def get(self):
         # получает {'ids': [1, 2, 3, 4, 5, 6...]}
         if not request.json:
-            return jsonify({'message': {'name': 'empty request'}})
+            return jsonify({'message': {'name': 'empty request'}}), 400
         if 'ids' not in request.json:
-            return jsonify({'message': {'name': 'invalid parameters'}})
+            return jsonify({'message': {'name': 'invalid parameters'}}), 400
         ids = request.json['ids']
         db_sess = create_session()
         payload = {'things': []}
@@ -101,9 +102,9 @@ class ThingListResource(Resource):
                 payload['things'].append(dict(tuple(thing.to_dict(
                     only=('id', 'name', 'about', 'price', 'count')).items()) + tuple(
                     {'photo': photo_id}.items())))
-            return jsonify(payload)
+            return jsonify(payload), 200
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} thing not found'}})
+            return jsonify({'message': {'name': f'{str(e)} thing not found'}}), 404
 
     @secure_check
     def post(self):
@@ -136,6 +137,6 @@ class ThingListResource(Resource):
 
             db_sess.add(thing)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok', 'thing_id': thing.id}})
+            return jsonify({'message': {'success': 'ok', 'thing_id': thing.id}}), 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}})
+            return jsonify({'message': {'name': str(e)}}), 400

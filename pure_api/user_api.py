@@ -22,9 +22,10 @@ class UserResource(Resource):
             return jsonify(
                 {'user': dict(
                     tuple(user.to_dict(only=('email', 'name', 'surname', 'patronymic', 'age', 'position',
-                                             'created_date', 'is_prime')).items()) + tuple(payload.items()))})
+                                             'created_date', 'is_prime')).items()) + tuple(
+                        payload.items()))}), 200
         except AssertionError:
-            return jsonify({'message': {'name': 'user not found'}})
+            return jsonify({'message': {'name': 'user not found'}}), 404
 
     @secure_check
     def put(self, user_id):
@@ -38,14 +39,15 @@ class UserResource(Resource):
                     exec(f'user.{key}=data[key]')
                 else:
                     if key in ['created_date', 'id']:
-                        return jsonify({'message': {'name': 'some of these properties cannot be changed'}})
-                    return jsonify({'message': {'name': 'user have no this property'}})
+                        return jsonify(
+                            {'message': {'name': 'some of these properties cannot be changed'}}), 403
+                    return jsonify({'message': {'name': 'user have no this property'}}), 405
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok'}}), 200
         except sqlalchemy.exc.IntegrityError:
-            return jsonify({'message': {'name': 'user with this email already exists'}})
+            return jsonify({'message': {'name': 'user with this email already exists'}}), 422
         except AssertionError:
-            return jsonify({'message': {'name': 'user not found'}})
+            return jsonify({'message': {'name': 'user not found'}}), 404
 
     @secure_check
     def delete(self, user_id):
@@ -55,9 +57,9 @@ class UserResource(Resource):
             assert user
             db_sess.delete(user)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok'}}), 200
         except AssertionError:
-            return jsonify({'message': {'name': 'user not found'}})
+            return jsonify({'message': {'name': 'user not found'}}), 404
 
 
 class UserListResource(Resource):
@@ -65,9 +67,9 @@ class UserListResource(Resource):
     def get(self):
         # получает {'ids': [1, 2, 3, 4, 5, 6...]}
         if not request.json:
-            return jsonify({'message': {'name': 'empty request'}})
+            return jsonify({'message': {'name': 'empty request'}}), 400
         if 'ids' not in request.json:
-            return jsonify({'message': {'name': 'invalid parameters'}})
+            return jsonify({'message': {'name': 'invalid parameters'}}), 400
         ids = request.json['ids']
         db_sess = create_session()
         payload = {'users': []}
@@ -82,9 +84,9 @@ class UserListResource(Resource):
                 payload['users'].append(dict(tuple(user.to_dict(
                     only=('email', 'name', 'surname', 'patronymic')).items()) + tuple(
                     {'photo': photo_id}.items())))
-            return jsonify(payload)
+            return jsonify(payload), 200
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} user not found'}})
+            return jsonify({'message': {'name': f'{str(e)} user not found'}}), 404
 
     @secure_check
     def post(self):
@@ -101,6 +103,6 @@ class UserListResource(Resource):
             user.set_password(args.password)
             db_sess.add(user)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return jsonify({'message': {'success': 'ok'}}), 200
         except sqlalchemy.exc.IntegrityError:
-            return jsonify({'message': {'name': 'user with this email already exists'}})
+            return jsonify({'message': {'name': 'user with this email already exists'}}), 422
