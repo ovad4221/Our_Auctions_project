@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
-from api_help_function import secure_check
+from api_help_function import *
 from all_parsers import parser_user, parser_put
 
 
@@ -11,7 +11,8 @@ class UserResource(Resource):
         try:
             db_sess = create_session()
             user = db_sess.query(User).get(user_id)
-            assert user
+            if not user:
+                raise NotFoundError('user')
             payload = dict()
             payload['reviews'] = [review.id for review in user.reviews]
             payload['auctions'] = [auction.id for auction in user.auctions]
@@ -23,8 +24,8 @@ class UserResource(Resource):
                 tuple(user.to_dict(only=('email', 'name', 'surname', 'patronymic', 'age', 'position',
                                          'created_date', 'is_prime')).items()) + tuple(
                     payload.items()))}, 200
-        except AssertionError:
-            return {'message': {'name': 'user not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
     @secure_check
     def put(self, user_id):
@@ -32,7 +33,8 @@ class UserResource(Resource):
             data = parser_put.parse_args().data
             db_sess = create_session()
             user = db_sess.query(User).get(user_id)
-            assert user
+            if not user:
+                raise NotFoundError('user')
             for key in data:
                 if key in ['email', 'name', 'surname', 'patronymic', 'age', 'position']:
                     exec(f'user.{key}=data[key]')
@@ -44,20 +46,21 @@ class UserResource(Resource):
             return {'message': {'success': 'ok'}}, 200
         except sqlalchemy.exc.IntegrityError:
             return {'message': {'name': 'user with this email already exists'}}, 422
-        except AssertionError:
-            return {'message': {'name': 'user not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
     @secure_check
     def delete(self, user_id):
         try:
             db_sess = create_session()
             user = db_sess.query(User).get(user_id)
-            assert user
+            if not user:
+                raise NotFoundError('user')
             db_sess.delete(user)
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError:
-            return {'message': {'name': 'user not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
 
 class UserListResource(Resource):
@@ -74,7 +77,8 @@ class UserListResource(Resource):
         try:
             for user_id in ids:
                 user = db_sess.query(User).get(user_id)
-                assert user, str(user_id)
+                if not user:
+                    raise NotFoundError(str(user_id))
                 if user.photos:
                     photo_id = user.photos[0].id
                 else:
@@ -83,8 +87,8 @@ class UserListResource(Resource):
                     only=('email', 'name', 'surname', 'patronymic')).items()) + tuple(
                     {'photo': photo_id}.items())))
             return payload, 200
-        except AssertionError as e:
-            return {'message': {'name': f'{str(e)} user not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} user not found'}}, 404
 
     @secure_check
     def post(self):
