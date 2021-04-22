@@ -15,7 +15,7 @@ def secure_check(func):
             assert check_token(token)
             return func(*args, **kwargs)
         except AssertionError:
-            return jsonify({'message': {'name': 'invalid token'}})
+            return {'message': {'name': 'invalid token'}}, 403
 
     return ready_func
 

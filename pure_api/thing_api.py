@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
 from api_help_function import secure_check, check_si
@@ -15,13 +15,12 @@ class ThingResource(Resource):
             payload = dict()
             payload['photos'] = [photo.id for photo in thing.photos]
             payload['lots'] = [elem.lot_id for elem in thing.thi_lo_bits]
-            return jsonify(
-                {'thing': dict(tuple(thing.to_dict(only=(
-                    'name', 'weight', 'height', 'long', 'width', 'about', 'colour', 'price', 'count',
-                    'bought', 'created_date', 'user_id')).items()) + tuple(
-                    payload.items()))}), 200
+            return {'thing': dict(tuple(thing.to_dict(only=(
+                'name', 'weight', 'height', 'long', 'width', 'about', 'colour', 'price', 'count',
+                'bought', 'created_date', 'user_id')).items()) + tuple(
+                payload.items()))}, 200
         except AssertionError:
-            return jsonify({'message': {'name': 'thing not found'}}), 404
+            return {'message': {'name': 'thing not found'}}, 404
 
     @secure_check
     def put(self, thing_id):
@@ -57,13 +56,12 @@ class ThingResource(Resource):
                     db_sess.add(l_t_c)
                 else:
                     if key in ['created_date', 'id']:
-                        return jsonify(
-                            {'message': {'name': 'some of these properties cannot be changed'}}), 403
-                    return jsonify({'message': {'name': 'thing have no this property'}}), 405
+                        return {'message': {'name': 'some of these properties cannot be changed'}}, 403
+                    return {'message': {'name': 'thing have no this property'}}, 405
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}}), 200
+            return {'message': {'success': 'ok'}}, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} not found'}}), 404
+            return {'message': {'name': f'{str(e)} not found'}}, 404
 
     @secure_check
     def delete(self, thing_id):
@@ -75,9 +73,9 @@ class ThingResource(Resource):
                 db_sess.delete(thi_lo_bit)
             db_sess.delete(thing)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}}), 200
+            return {'message': {'success': 'ok'}}, 200
         except AssertionError:
-            return jsonify({'message': {'name': 'thing not found'}}), 404
+            return {'message': {'name': 'thing not found'}}, 404
 
 
 class ThingListResource(Resource):
@@ -85,9 +83,9 @@ class ThingListResource(Resource):
     def get(self):
         # получает {'ids': [1, 2, 3, 4, 5, 6...]}
         if not request.json:
-            return jsonify({'message': {'name': 'empty request'}}), 400
+            return {'message': {'name': 'empty request'}}, 400
         if 'ids' not in request.json:
-            return jsonify({'message': {'name': 'invalid parameters'}}), 400
+            return {'message': {'name': 'invalid parameters'}}, 400
         ids = request.json['ids']
         db_sess = create_session()
         payload = {'things': []}
@@ -102,9 +100,9 @@ class ThingListResource(Resource):
                 payload['things'].append(dict(tuple(thing.to_dict(
                     only=('id', 'name', 'about', 'price', 'count')).items()) + tuple(
                     {'photo': photo_id}.items())))
-            return jsonify(payload), 200
+            return payload, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} thing not found'}}), 404
+            return {'message': {'name': f'{str(e)} thing not found'}}, 404
 
     @secure_check
     def post(self):
@@ -137,6 +135,6 @@ class ThingListResource(Resource):
 
             db_sess.add(thing)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok', 'thing_id': thing.id}}), 200
+            return {'message': {'success': 'ok', 'thing_id': thing.id}}, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}}), 400
+            return {'message': {'name': str(e)}}, 400

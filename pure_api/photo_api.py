@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
 from api_help_function import secure_check
@@ -12,13 +12,11 @@ class PhotoResource(Resource):
             db_sess = create_session()
             photo = db_sess.query(Photo).get(photo_id)
             assert photo, 'photo not found'
-            return jsonify({
-                'link': photo.link,
-                'thing_id': photo.thing_id,
-                'user_id': photo.user_id
-            }), 200
+            return {'link': photo.link,
+                    'thing_id': photo.thing_id,
+                    'user_id': photo.user_id}, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}}), 404
+            return {'message': {'name': str(e)}}, 404
 
     @secure_check
     def put(self, photo_id):
@@ -39,11 +37,11 @@ class PhotoResource(Resource):
                     assert user, 'user not found'
                     photo.user = user
                 else:
-                    return jsonify({'message': {'name': 'photo have no this property'}}), 405
+                    return {'message': {'name': 'photo have no this property'}}, 405
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}}), 200
+            return {'message': {'success': 'ok'}}, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}}), 404
+            return {'message': {'name': str(e)}}, 404
 
     @secure_check
     def delete(self, photo_id):
@@ -53,9 +51,9 @@ class PhotoResource(Resource):
             assert photo
             db_sess.delete(photo)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}}), 200
+            return {'message': {'success': 'ok'}}, 200
         except AssertionError:
-            return jsonify({'message': {'name': 'photo not found'}}), 404
+            return {'message': {'name': 'photo not found'}}, 404
 
 
 class PhotoListResource(Resource):
@@ -63,9 +61,9 @@ class PhotoListResource(Resource):
     def get(self):
         # получает {'ids': [1, 2, 3, 4, 5, 6...]}
         if not request.json:
-            return jsonify({'message': {'name': 'empty request'}}), 400
+            return {'message': {'name': 'empty request'}}, 400
         if 'ids' not in request.json:
-            return jsonify({'message': {'name': 'invalid parameters'}}), 400
+            return {'message': {'name': 'invalid parameters'}}, 400
         ids = request.json['ids']
         db_sess = create_session()
         payload = {'photos': []}
@@ -74,9 +72,9 @@ class PhotoListResource(Resource):
                 photo = db_sess.query(Photo).get(photo_id)
                 assert photo, str(photo_id)
                 payload['photos'].append(photo.to_dict(only=('link',)))
-            return jsonify(payload), 200
+            return payload, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} photo not found'}}), 404
+            return {'message': {'name': f'{str(e)} photo not found'}}, 404
 
     @secure_check
     def post(self):
@@ -96,7 +94,6 @@ class PhotoListResource(Resource):
 
             db_sess.add(photo)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}}), 200
+            return {'message': {'success': 'ok'}}, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}}), 404
-
+            return {'message': {'name': str(e)}}, 404
