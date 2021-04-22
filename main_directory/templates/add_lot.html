@@ -30,10 +30,9 @@
             {% for thing in added_things %}
           <div class="auction-thing-card" style="width: 18rem;">
           <div class="card-body">
-            <a type="button" class="btn-close" aria-label="Close" href="/del_thing_while_creating_lot/{{thing.id}}"></a>
             <h5 class="card-title">{{thing.name}}</h5>
             <p class="card-text">Кол-во: {{thing.count}}</p>
-            <a href="/add_thing_to_lot/{{thing.id}}" class="btn btn-primary">Удалить</a>
+            <a href="/del_thing_while_creating_lot/{{ thing.id }}" class="btn btn-primary">Удалить</a>
           </div>
           </div>
             {% endfor %}

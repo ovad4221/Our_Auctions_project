@@ -178,7 +178,9 @@ def add_lot():
     for item in dict_to_add_thing_to_lot:
         added_thing_query = get(f'http://127.0.0.1:5000/api/things/{item}',
                                 json=make_request({})).json()['thing']
-        added_things.append({'name': added_thing_query['name'], 'count': dict_to_add_thing_to_lot[item]})
+        added_things.append({'id': item,
+                             'name': added_thing_query['name'],
+                             'count': dict_to_add_thing_to_lot[item]})
 
     if form.validate_on_submit():
         add_lot_query = post(f'http://127.0.0.1:5000/api/lots',
@@ -223,6 +225,7 @@ def account():
 
 @app.route('/del_thing_while_creating_lot/<int:id>', methods=['GET', 'POST'])
 def del_thing_while_creating_lot(id):
+    global dict_to_add_thing_to_lot
     dict_to_add_thing_to_lot.pop(id)
 
     return redirect('/add_lot')

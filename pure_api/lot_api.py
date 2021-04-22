@@ -101,7 +101,7 @@ class LotListResource(Resource):
                 thing = db_sess.query(Thing).get(thing_id)
                 assert thing, f'{thing_id} thing not found'
                 sum_ca = sum([thi_lo_bit.count for thi_lo_bit in thing.thi_lo_bits])
-                assert sum_ca + count <= thing.count, f'{count + sum_ca - thing.count} objects'
+                assert sum_ca + int(count) <= thing.count, f'{count + sum_ca - thing.count} objects'
                 l_t_c = LotThingConnect()
                 l_t_c.count_thing = count
                 l_t_c.thing = thing
