@@ -51,15 +51,14 @@ def reqister():
                                    message="Пароли не совпадают", **params1)
 
         query = post('http://127.0.0.1:5000/api/users',
-             json=make_request({'email': form.email.data,
-                                'name': form.name.data,
-                                'surname': form.surname.data,
-                                'patronymic': form.patronymic.data,
-                                'age': form.age.data,
-                                'position': form.position.data,
-                                'hashed_password': generate_password_hash(form.password.data)})).json()
-
-        if not 'success' in query['message']:
+                     json=make_request({'email': form.email.data,
+                                        'name': form.name.data,
+                                        'surname': form.surname.data,
+                                        'patronymic': form.patronymic.data,
+                                        'age': form.age.data,
+                                        'position': form.position.data,
+                                        'password': form.password.data})).json()
+        if 'success' not in query['message']:
             return render_template('rega.html',
                                    form=form,
                                    message=query['message']['name'], **params1)
@@ -96,17 +95,17 @@ def add_thing():
     form = AddThing()
     if form.validate_on_submit():
         add_thing_request = post('http://127.0.0.1:5000/api/things',
-            json=make_request({
-                'name': form.name.data,
-                'weight': str(form.weight.data) + ' ' + form.units_mass.data,
-                'long': str(form.long.data) + ' ' + form.units_size.data,
-                'width': str(form.width.data) + ' ' + form.units_size.data,
-                'height': str(form.height.data) + ' ' + form.units_size.data,
-                'about': form.about.data,
-                'colour': form.colour.data,
-                'price': str(form.price.data) + ' ' + form.units_money.data,
-                'count': form.count.data,
-                'user_id': current_user.id})).json()['message']
+                                 json=make_request({
+                                     'name': form.name.data,
+                                     'weight': str(form.weight.data) + ' ' + form.units_mass.data,
+                                     'long': str(form.long.data) + ' ' + form.units_size.data,
+                                     'width': str(form.width.data) + ' ' + form.units_size.data,
+                                     'height': str(form.height.data) + ' ' + form.units_size.data,
+                                     'about': form.about.data,
+                                     'colour': form.colour.data,
+                                     'price': str(form.price.data) + ' ' + form.units_money.data,
+                                     'count': form.count.data,
+                                     'user_id': current_user.id})).json()['message']
         if 'success' in add_thing_request:
             return redirect("/account")
         return render_template('add_thing.html',
@@ -168,8 +167,9 @@ def account():
     params1 = params.copy()
     params1['title'] = 'Аккаунт'
     user_things_id = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
-               json=make_request({})).json()['user']['things']
-    things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_things_id})).json()['things']
+                         json=make_request({})).json()['user']['things']
+    things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_things_id})).json()[
+        'things']
 
     return render_template('account.html', **params1, things=things)
 
