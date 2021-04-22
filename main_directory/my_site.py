@@ -20,6 +20,7 @@ params = {
     'title': 'Auctions',
     'style': '/static/css/style.css'
 }
+dict_to_add_thing_to_lot = {}
 
 app.config['SECRET_KEY'] = '#Auction%Topic%Secret$%Key!!!'
 app.config['UPLOAD_FOLDER'] = '/static/images/thing_user_images'
@@ -57,7 +58,7 @@ def reqister():
                                 'patronymic': form.patronymic.data,
                                 'age': form.age.data,
                                 'position': form.position.data,
-                                'hashed_password': generate_password_hash(form.password.data)})).json()
+                                'hashed_password': form.password.data})).json()
 
         if not 'success' in query['message']:
             return render_template('rega.html',
@@ -170,15 +171,42 @@ def add_lot():
     form = LotForm()
     user_things_id = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
                          json=make_request({})).json()['user']['things']
-    things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_things_id})).json()['things']
-    return render_template('add_lot.html', form=form, **params1, things=things)
+    things = get('http://127.0.0.1:5000/api/things',
+                 json=make_request({'ids': user_things_id})).json()['things']
+    added_things = []
+    # print(dict_to_add_thing_to_lot)
+    for item in dict_to_add_thing_to_lot:
+        added_thing_query = get(f'http://127.0.0.1:5000/api/things/{item}',
+                                json=make_request({})).json()['thing']
+        added_things.append({'name': added_thing_query['name'], 'count': dict_to_add_thing_to_lot[item]})
+
+    if form.validate_on_submit():
+        add_lot_query = post(f'http://127.0.0.1:5000/api/lots',
+                         json=make_request({'list_ids': [(i, dict_to_add_thing_to_lot[i])
+                                                         for i in dict_to_add_thing_to_lot],
+                                            'user_id': current_user.id,
+                                            'name': form.name.data,
+                                            'about': form.about.data,
+                                            'start_price': form.price.data})).json()
+        if 'success' in add_lot_query['message']:
+            dict_to_add_thing_to_lot.clear()
+            return redirect('/account')
+        return render_template('add_lot.html', form=form, **params1,
+                               things=things, added_things=added_things,
+                               message=add_lot_query['message'])
+
+    return render_template('add_lot.html', form=form, **params1, things=things, added_things=added_things)
 
 
 @app.route('/add_thing_to_lot/<int:id>', methods=['GET', 'POST'])
 def add_thing_to_lot(id):
+    global dict_to_add_thing_to_lot
     params1 = params.copy()
     params1['title'] = 'Добавление вещи в лот'
     form = AddThingToLot()
+    if form.validate_on_submit():
+        dict_to_add_thing_to_lot[id] = form.count.data
+        return redirect('/add_lot')
     return render_template('add_thing_to_lot.html', form=form, **params1)
 
 
@@ -193,9 +221,17 @@ def account():
     return render_template('account.html', **params1, things=things)
 
 
+@app.route('/del_thing_while_creating_lot/<int:id>', methods=['GET', 'POST'])
+def del_thing_while_creating_lot(id):
+    dict_to_add_thing_to_lot.pop(id)
+
+    return redirect('/add_lot')
+
+
 @login_manager.user_loader
 def load_user(user_id):
     info = get(f'http://127.0.0.1:5000/api/users/{user_id}', json=make_request({})).json()['user']
+
     user = User(info['email'])
     return user
 

@@ -13,7 +13,7 @@ class LotResource(Resource):
             lot = db_sess.query(Lot).get(lot_id)
             assert lot, 'lot not found'
             payload = dict()
-            payload['things'] = [elem.thing_id for elem in lot.lo_thi_bits]
+            payload['things'] = [(elem.thing_id, elem.count) for elem in lot.lo_thi_bits]
             return jsonify({'lot': dict(
                 tuple(lot.to_dict(only=(
                     'name', 'about', 'start_price', 'price', 'buyer_id', 'auction_id',
