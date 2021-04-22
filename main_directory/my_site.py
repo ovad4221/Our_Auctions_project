@@ -164,6 +164,18 @@ def edit_thing(id):
     return render_template('add_thing.html', form=form, **params1)
 
 
+@app.route('/delete_thing/<int:id>', methods=['GET', 'POST'])
+def delete_thing(id):
+    delete(f'http://127.0.0.1:5000/api/things/{id}', json=make_request({}))
+    return redirect('/account')
+
+
+@app.route('/delete_lot/<int:id>', methods=['GET', 'POST'])
+def delete_lot(id):
+    delete(f'http://127.0.0.1:5000/api/lots/{id}', json=make_request({}))
+    return redirect('/account')
+
+
 @app.route('/add_lot', methods=['GET', 'POST'])
 def add_lot():
     params1 = params.copy()
@@ -174,7 +186,7 @@ def add_lot():
     things = get('http://127.0.0.1:5000/api/things',
                  json=make_request({'ids': user_things_id})).json()['things']
     added_things = []
-    # print(dict_to_add_thing_to_lot)
+
     for item in dict_to_add_thing_to_lot:
         added_thing_query = get(f'http://127.0.0.1:5000/api/things/{item}',
                                 json=make_request({})).json()['thing']
@@ -212,6 +224,60 @@ def add_thing_to_lot(id):
     return render_template('add_thing_to_lot.html', form=form, **params1)
 
 
+@app.route('/edit_lot/<int:lot_id>', methods=['GET', 'POST'])
+def edit_lot(lot_id):
+    global dict_to_add_thing_to_lot
+    params1 = params.copy()
+    params1['title'] = 'Редактирование лота'
+    form = LotForm()
+
+    user_things_id = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
+                         json=make_request({})).json()['user']['things']
+    things = get('http://127.0.0.1:5000/api/things',
+                 json=make_request({'ids': user_things_id})).json()['things']
+
+    lot = get(f'http://127.0.0.1:5000/api/lots/{lot_id}', json=make_request({})).json()['lot']
+
+    for thing_i in lot['things']:
+        dict_to_add_thing_to_lot[thing_i[0]] = thing_i[1]
+
+    added_things = []
+
+    for item in dict_to_add_thing_to_lot:
+        added_thing_query = get(f'http://127.0.0.1:5000/api/things/{item}',
+                                json=make_request({})).json()['thing']
+        added_things.append({'id': item,
+                             'name': added_thing_query['name'],
+                             'count': dict_to_add_thing_to_lot[item]})
+
+    if request.method == 'GET':
+
+        form.name.data = lot['name']
+        form.about.data = lot['about']
+
+        form.price.data = edit_thing['price'].split()[0]
+
+        form.units_money.data = edit_thing['price'].split()[1]
+
+    if form.validate_on_submit():
+        edit_lot_query = put(f'http://127.0.0.1:5000/api/lots{lot_id}',
+                             json=make_request({'list_ids': [(i, dict_to_add_thing_to_lot[i])
+                                                             for i in dict_to_add_thing_to_lot],
+                                                'user_id': current_user.id,
+                                                'name': form.name.data,
+                                                'about': form.about.data,
+                                                'start_price': str(
+                                                    form.price.data) + ' ' + form.units_money.data})).json()
+        if 'success' in edit_lot_query['message']:
+            dict_to_add_thing_to_lot.clear()
+            return redirect('/account')
+        return render_template('add_lot.html', form=form, **params1,
+                               things=things, added_things=added_things,
+                               message=edit_lot_query['message'])
+
+    return render_template('add_lot.html', form=form, **params1, things=things, added_things=added_things)
+
+
 @app.route('/account', methods=['GET', 'POST'])
 def account():
     params1 = params.copy()
@@ -230,10 +296,9 @@ def account():
             thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()['thing']
             things_lot.append({'name': thing['name'], 'about': thing['about'],
                                'price': thing['price'], 'count': count_thing})
-        lots.append({'name': lot['name'], 'about': lot['about'], 'price': lot['price'], 'things': things_lot})
-
-
-    print(lots)
+        lots.append({'id': lot_id, 'name': lot['name'],
+                     'about': lot['about'], 'price': lot['price'],
+                     'things': things_lot})
 
     return render_template('account.html', **params1, things=things, lots=lots)
 

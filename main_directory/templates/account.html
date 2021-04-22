@@ -18,6 +18,7 @@
             <p class="card-text">Цена: {{thing.price}}</p>
             <p class="card-text">Кол-во: {{thing.count}}</p>
             <a href="/edit_thing/{{thing.id}}" class="btn btn-primary">Редактировать</a>
+            <a href="/delete_thing/{{thing.id}}" class="btn btn-secondary">Удалить</a>
           </div>
           </div>
             {% endfor %}
@@ -28,7 +29,7 @@
 
     {% for lot in lots %}
     <div class="account_lot">
-        <h5 class="lot-name">{{ lot.name }}</h5>
+        <h3 class="lot-name">{{ lot.name }} </h3>
         <p class="lot-about">{{ lot.about }}</p>
 
         <div class="account-thing-cards">
@@ -42,7 +43,10 @@
           </div>
           </div>
             {% endfor %}
-          <h5 class="lot-price">Цена: {{lot.price}}</h5>
+    </div>
+        <h5 class="lot-price">Цена: {{lot.price}}</h5>
+        <a href="/delete_lot/{{lot.id}}" class="btn btn-secondary">Удалить</a>
+        <a href="/edit_lot/{{lot.id}}" class="btn btn-secondary">Редактировать</a>
     </div>
     {% endfor %}
 
