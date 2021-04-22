@@ -35,4 +35,10 @@ def main_ret():
         return jsonify({'message': {'name': 'invalid token'}}), 403
 
 
+def change_password():
+    global secret_key
+    secret_key = ''.join([chr(randint(10, 10 ** 4)) for _ in range(600)])
+
+
+schedule.every(30).seconds.do(change_password)
 app.run(port=4010, host='127.0.0.1')
