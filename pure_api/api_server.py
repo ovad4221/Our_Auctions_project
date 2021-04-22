@@ -8,8 +8,9 @@ from review_api import *
 from lot_api import *
 from requisite_api import *
 import blueprints_dop_functions
+from api_help_function import secure_check
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restful import Api
 
 
@@ -19,6 +20,16 @@ api = Api(app)
 global_init('../pure_api/sqalch_data/db/main_database.db')
 
 app.register_blueprint(blueprints_dop_functions.blueprint)
+
+
+@app.route('/api/get_all_lots')
+@secure_check
+def get_all_lots():
+    db_sess = create_session()
+    lots = db_sess.query(Lot)
+    lots = [lot.id for lot in lots]
+    return jsonify({'lots': lots})
+
 
 api.add_resource(UserResource, '/api/users/<int:user_id>')
 api.add_resource(UserListResource, '/api/users')
