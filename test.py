@@ -42,10 +42,15 @@ from main_directory.encode_token_function import make_request
 
 # print(get('http://127.0.0.1:4010/get_password', json={'password_check': 'cock'}))
 
-print(post('http://127.0.0.1:5000/api/lots',
-           json=make_request({
-               'name': 'лот 1',
-               'about': 'Вот так вот',
-               'start_price': '123 ЫЫы',
-               'user_id': 1,
-               'list_ids': [(1, 2), (2, 4), (3, 1)]})).json())
+# print(post('http://127.0.0.1:5000/api/lots',
+#            json=make_request({
+#                'name': 'лот 1',
+#                'about': 'Вот так вот',
+#                'start_price': '123 ЫЫы',
+#                'user_id': 1,
+#                'list_ids': [(1, 2), (2, 4), (3, 1)]})).json())
+
+# print(get('http://127.0.0.1:5000/api/lots/1', json=make_request({})).json())
+
+# {'lot': {'buyer_id': None, 'start_price': '23.0', 'about': 'f',
+# 'price': '23.0', 'name': 'f', 'auction_id': None, 'user_id': 1, 'things': [[1, 1]]}}

@@ -189,7 +189,7 @@ def add_lot():
                                             'user_id': current_user.id,
                                             'name': form.name.data,
                                             'about': form.about.data,
-                                            'start_price': form.price.data})).json()
+                                            'start_price': str(form.price.data) + ' ' + form.units_money.data})).json()
         if 'success' in add_lot_query['message']:
             dict_to_add_thing_to_lot.clear()
             return redirect('/account')
@@ -216,11 +216,26 @@ def add_thing_to_lot(id):
 def account():
     params1 = params.copy()
     params1['title'] = 'Аккаунт'
-    user_things_id = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
-               json=make_request({})).json()['user']['things']
-    things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_things_id})).json()['things']
+    user_query = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
+               json=make_request({})).json()['user']
+    things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_query['things']})).json()['things']
 
-    return render_template('account.html', **params1, things=things)
+    lots = []
+
+    for lot_id in user_query['lots']:
+        lot = get(f'http://127.0.0.1:5000/api/lots/{lot_id}', json=make_request({})).json()['lot']
+        things_lot = []
+        for thing_i in lot['things']:
+            count_thing = thing_i[1]
+            thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()['thing']
+            things_lot.append({'name': thing['name'], 'about': thing['about'],
+                               'price': thing['price'], 'count': count_thing})
+        lots.append({'name': lot['name'], 'about': lot['about'], 'price': lot['price'], 'things': things_lot})
+
+
+    print(lots)
+
+    return render_template('account.html', **params1, things=things, lots=lots)
 
 
 @app.route('/del_thing_while_creating_lot/<int:id>', methods=['GET', 'POST'])

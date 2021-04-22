@@ -26,6 +26,25 @@
     </div>
     <h2 class="my-lots">Мои лоты: <a class="btn btn-outline-dark plus-button" href="/add_lot" role="button">+</a></h2>
 
+    {% for lot in lots %}
+    <div class="account_lot">
+        <h5 class="lot-name">{{ lot.name }}</h5>
+        <p class="lot-about">{{ lot.about }}</p>
+
+        <div class="account-thing-cards">
+            {% for thing in lot.things %}
+          <div class="auction-thing-card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">{{thing.name}}</h5>
+            <p class="card-text">{{thing.about}}</p>
+            <p class="card-text">Цена: {{thing.price}}</p>
+            <p class="card-text">Кол-во: {{thing.count}}</p>
+          </div>
+          </div>
+            {% endfor %}
+          <h5 class="lot-price">Цена: {{lot.price}}</h5>
+    </div>
+    {% endfor %}
 
 
 

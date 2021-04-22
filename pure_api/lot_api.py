@@ -13,7 +13,7 @@ class LotResource(Resource):
             lot = db_sess.query(Lot).get(lot_id)
             assert lot, 'lot not found'
             payload = dict()
-            payload['things'] = [(elem.thing_id, elem.count) for elem in lot.lo_thi_bits]
+            payload['things'] = [(elem.thing_id, elem.count_thing) for elem in lot.lo_thi_bits]
             return {'lot': dict(tuple(lot.to_dict(only=(
                 'name', 'about', 'start_price', 'price', 'buyer_id', 'auction_id',
                 'user_id')).items()) + tuple(
@@ -78,7 +78,7 @@ class LotListResource(Resource):
                 assert lot, str(lot_id)
                 payload['lots'].append(dict(
                     tuple(lot.to_dict(only=('name', 'about', 'price')).items()) + tuple(
-                        {'things': [(elem.thing_id, elem.count) for elem in lot.lo_thi_bits]}.items())))
+                        {'things': [(elem.thing_id, elem.count_thing) for elem in lot.lo_thi_bits]}.items())))
             return payload, 200
         except AssertionError as e:
             return {'message': {'name': f'{str(e)} photo not found'}}, 404
@@ -100,7 +100,7 @@ class LotListResource(Resource):
             for thing_id, count in request.json['list_ids']:
                 thing = db_sess.query(Thing).get(thing_id)
                 assert thing, f'{thing_id} thing not found'
-                sum_ca = sum([thi_lo_bit.count for thi_lo_bit in thing.thi_lo_bits])
+                sum_ca = sum([thi_lo_bit.count_thing for thi_lo_bit in thing.thi_lo_bits])
                 assert sum_ca + int(count) <= thing.count, f'{count + sum_ca - thing.count} objects'
                 l_t_c = LotThingConnect()
                 l_t_c.count_thing = count
