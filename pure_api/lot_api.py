@@ -94,9 +94,15 @@ class LotListResource(Resource):
             if args.about:
                 lot.about = args.about
 
+            assert check_si(args.start_price), 'invalid form of price'
+            lot.start_price = lot.price = args.start_price
+
+            user = db_sess.query(User).get(args.user_id)
+            assert user, 'user not found'
+            lot.user = user
+
             assert request.json, 'empty request'
             assert 'list_ids' in request.json, 'invalid parameters'
-
             for thing_id, count in request.json['list_ids']:
                 thing = db_sess.query(Thing).get(thing_id)
                 assert thing, f'{thing_id} thing not found'
@@ -107,13 +113,6 @@ class LotListResource(Resource):
                 l_t_c.thing = thing
                 l_t_c.lot = lot
                 db_sess.add(l_t_c)
-
-            assert check_si(args.start_price), 'invalid form of price'
-            lot.start_price = lot.price = args.start_price
-
-            user = db_sess.query(User).get(args.user_id)
-            assert user, 'user not found'
-            lot.user = user
 
             db_sess.add(lot)
             db_sess.commit()
