@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
-from api_help_function import secure_check
+from api_help_function import *
 from all_parsers import parser_photo, parser_put
 
 
@@ -11,12 +11,13 @@ class PhotoResource(Resource):
         try:
             db_sess = create_session()
             photo = db_sess.query(Photo).get(photo_id)
-            assert photo, 'photo not found'
+            if not photo:
+                raise NotFoundError('photo')
             return {'link': photo.link,
                     'thing_id': photo.thing_id,
                     'user_id': photo.user_id}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
     @secure_check
     def put(self, photo_id):
@@ -24,36 +25,40 @@ class PhotoResource(Resource):
             data = parser_put.parse_args().data
             db_sess = create_session()
             photo = db_sess.query(Photo).get(photo_id)
-            assert photo, 'photo not found'
+            if not photo:
+                raise NotFoundError('photo')
             for key in data:
                 if key == 'link':
                     photo.link = data[key]
                 if key == 'thing_id':
                     thing = db_sess.query(Thing).get(data[key])
-                    assert thing, 'thing not found'
+                    if not thing:
+                        raise NotFoundError('thing')
                     photo.thing = thing
                 elif key == 'user_id':
                     user = db_sess.query(User).get(data[key])
-                    assert user, 'user not found'
+                    if not user:
+                        raise NotFoundError('user')
                     photo.user = user
                 else:
                     return {'message': {'name': 'photo have no this property'}}, 405
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
     @secure_check
     def delete(self, photo_id):
         try:
             db_sess = create_session()
             photo = db_sess.query(Photo).get(photo_id)
-            assert photo
+            if not photo:
+                raise NotFoundError('photo')
             db_sess.delete(photo)
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError:
-            return {'message': {'name': 'photo not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
 
 class PhotoListResource(Resource):
@@ -70,11 +75,12 @@ class PhotoListResource(Resource):
         try:
             for photo_id in ids:
                 photo = db_sess.query(Photo).get(photo_id)
-                assert photo, str(photo_id)
+                if not photo:
+                    raise NotFoundError(str(photo_id))
                 payload['photos'].append(photo.to_dict(only=('link',)))
             return payload, 200
-        except AssertionError as e:
-            return {'message': {'name': f'{str(e)} photo not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} photo not found'}}, 404
 
     @secure_check
     def post(self):
@@ -85,15 +91,17 @@ class PhotoListResource(Resource):
             photo.link = args.link
 
             thing = db_sess.query(Thing).get(args.thing_id)
-            assert thing, 'thing not found'
+            if not thing:
+                raise NotFoundError('thing')
             photo.thing = thing
 
             user = db_sess.query(User).get(args.user_id)
-            assert user, 'user not found'
+            if not user:
+                raise NotFoundError('user')
             photo.user = user
 
             db_sess.add(photo)
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
