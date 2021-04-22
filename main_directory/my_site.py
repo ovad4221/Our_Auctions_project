@@ -32,7 +32,23 @@ login_manager.init_app(app)
 @app.route('/')
 @app.route('/index')
 def start():
-    return render_template('main_page.html', **params)
+    all_lots_list = get('http://127.0.0.1:5000/api/get_all_lots', json=make_request({})).json()['lots']
+
+    lots = []
+
+    for lot_id in all_lots_list:
+        lot = get(f'http://127.0.0.1:5000/api/lots/{lot_id}', json=make_request({})).json()['lot']
+        things_lot = []
+        for thing_i in lot['things']:
+            count_thing = thing_i[1]
+            thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()['thing']
+            things_lot.append({'name': thing['name'], 'about': thing['about'],
+                               'price': thing['price'], 'count': count_thing})
+        lots.append({'id': lot_id, 'name': lot['name'],
+                     'about': lot['about'], 'price': lot['price'],
+                     'things': things_lot})
+
+    return render_template('main_page.html', **params, lots=lots)
 
 
 @app.route('/auction')
@@ -52,15 +68,15 @@ def reqister():
                                    message="Пароли не совпадают", **params1)
 
         query = post('http://127.0.0.1:5000/api/users',
-             json=make_request({'email': form.email.data,
-                                'name': form.name.data,
-                                'surname': form.surname.data,
-                                'patronymic': form.patronymic.data,
-                                'age': form.age.data,
-                                'position': form.position.data,
-                                'hashed_password': form.password.data})).json()
+                     json=make_request({'email': form.email.data,
+                                        'name': form.name.data,
+                                        'surname': form.surname.data,
+                                        'patronymic': form.patronymic.data,
+                                        'age': form.age.data,
+                                        'position': form.position.data,
+                                        'password': form.password.data})).json()
 
-        if not 'success' in query['message']:
+        if 'success' not in query['message']:
             return render_template('rega.html',
                                    form=form,
                                    message=query['message']['name'], **params1)
@@ -97,17 +113,17 @@ def add_thing():
     form = AddThing()
     if form.validate_on_submit():
         add_thing_request = post('http://127.0.0.1:5000/api/things',
-            json=make_request({
-                'name': form.name.data,
-                'weight': str(form.weight.data) + ' ' + form.units_mass.data,
-                'long': str(form.long.data) + ' ' + form.units_size.data,
-                'width': str(form.width.data) + ' ' + form.units_size.data,
-                'height': str(form.height.data) + ' ' + form.units_size.data,
-                'about': form.about.data,
-                'colour': form.colour.data,
-                'price': str(form.price.data) + ' ' + form.units_money.data,
-                'count': form.count.data,
-                'user_id': current_user.id})).json()['message']
+                                 json=make_request({
+                                     'name': form.name.data,
+                                     'weight': str(form.weight.data) + ' ' + form.units_mass.data,
+                                     'long': str(form.long.data) + ' ' + form.units_size.data,
+                                     'width': str(form.width.data) + ' ' + form.units_size.data,
+                                     'height': str(form.height.data) + ' ' + form.units_size.data,
+                                     'about': form.about.data,
+                                     'colour': form.colour.data,
+                                     'price': str(form.price.data) + ' ' + form.units_money.data,
+                                     'count': form.count.data,
+                                     'user_id': current_user.id})).json()['message']
         if 'success' in add_thing_request:
             return redirect("/account")
         return render_template('add_thing.html',
@@ -196,18 +212,19 @@ def add_lot():
 
     if form.validate_on_submit():
         add_lot_query = post(f'http://127.0.0.1:5000/api/lots',
-                         json=make_request({'list_ids': [(i, dict_to_add_thing_to_lot[i])
-                                                         for i in dict_to_add_thing_to_lot],
-                                            'user_id': current_user.id,
-                                            'name': form.name.data,
-                                            'about': form.about.data,
-                                            'start_price': str(form.price.data) + ' ' + form.units_money.data})).json()
+                             json=make_request({'list_ids': [(i, dict_to_add_thing_to_lot[i])
+                                                             for i in dict_to_add_thing_to_lot],
+                                                'user_id': current_user.id,
+                                                'name': form.name.data,
+                                                'about': form.about.data,
+                                                'start_price': str(
+                                                    form.price.data) + ' ' + form.units_money.data})).json()
         if 'success' in add_lot_query['message']:
             dict_to_add_thing_to_lot.clear()
             return redirect('/account')
         return render_template('add_lot.html', form=form, **params1,
                                things=things, added_things=added_things,
-                               message=add_lot_query['message'])
+                               message=add_lot_query['message']['name'])
 
     return render_template('add_lot.html', form=form, **params1, things=things, added_things=added_things)
 
@@ -251,7 +268,6 @@ def edit_lot(lot_id):
                              'count': dict_to_add_thing_to_lot[item]})
 
     if request.method == 'GET':
-
         form.name.data = lot['name']
         form.about.data = lot['about']
 
@@ -282,23 +298,24 @@ def edit_lot(lot_id):
 def account():
     params1 = params.copy()
     params1['title'] = 'Аккаунт'
-    user_query = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
-               json=make_request({})).json()['user']
-    things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_query['things']})).json()['things']
-
     lots = []
+    things = []
+    if current_user.is_authenticated:
+        user_query = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
+                         json=make_request({})).json()['user']
+        things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_query['things']})).json()['things']
 
-    for lot_id in user_query['lots']:
-        lot = get(f'http://127.0.0.1:5000/api/lots/{lot_id}', json=make_request({})).json()['lot']
-        things_lot = []
-        for thing_i in lot['things']:
-            count_thing = thing_i[1]
-            thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()['thing']
-            things_lot.append({'name': thing['name'], 'about': thing['about'],
-                               'price': thing['price'], 'count': count_thing})
-        lots.append({'id': lot_id, 'name': lot['name'],
-                     'about': lot['about'], 'price': lot['price'],
-                     'things': things_lot})
+        for lot_id in user_query['lots']:
+            lot = get(f'http://127.0.0.1:5000/api/lots/{lot_id}', json=make_request({})).json()['lot']
+            things_lot = []
+            for thing_i in lot['things']:
+                count_thing = thing_i[1]
+                thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()['thing']
+                things_lot.append({'name': thing['name'], 'about': thing['about'],
+                                   'price': thing['price'], 'count': count_thing})
+            lots.append({'id': lot_id, 'name': lot['name'],
+                         'about': lot['about'], 'price': lot['price'],
+                         'things': things_lot})
 
     return render_template('account.html', **params1, things=things, lots=lots)
 

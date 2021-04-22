@@ -10,13 +10,13 @@ import datetime
 class RegisterUser(FlaskForm):
     name = StringField('Имя пользователя:', validators=[DataRequired()])
     surname = StringField('Фамилия пользователя:', validators=[DataRequired()])
-    patronymic = StringField('Отчество пользователя:', validators=[DataRequired()])
+    patronymic = StringField('Отчество пользователя:')
     age = IntegerField('Возраст:', validators=[DataRequired()])
     email = EmailField('Почта:', validators=[DataRequired()])
-    position = StringField('Где работаете?', validators=[DataRequired()])
+    position = StringField('Где работаете?')
     password = PasswordField('Пароль', validators=[DataRequired()])
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
-    submit = SubmitField('Зарегестрироваться')
+    submit = SubmitField('Зарегистрироваться')
     # надо добавить загрузку фото
 
 

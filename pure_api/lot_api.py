@@ -111,7 +111,7 @@ class LotListResource(Resource):
 
             if not request.json:
                 return {'message': {'name': 'empty request'}}, 400
-            if 'ids' not in request.json:
+            if 'list_ids' not in request.json:
                 return {'message': {'name': 'invalid parameters'}}, 400
 
             for thing_id, count in request.json['list_ids']:
@@ -120,7 +120,7 @@ class LotListResource(Resource):
                     raise NotFoundError(f'{thing_id} thing')
                 sum_ca = sum([thi_lo_bit.count_thing for thi_lo_bit in thing.thi_lo_bits])
                 if not sum_ca + int(count) <= thing.count:
-                    raise ToManyError(f'not enough objects ({count + sum_ca - thing.count})')
+                    raise ToManyError(f'not enough objects ({int(count) + sum_ca - thing.count})')
                 l_t_c = LotThingConnect()
                 l_t_c.count_thing = count
                 l_t_c.thing = thing
