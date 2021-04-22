@@ -30,9 +30,9 @@ def main_ret():
         token = parser_token.parse_args().password_check
         assert token == 'cock'
 
-        return jsonify({'token': secret_key})
+        return jsonify({'token': secret_key}), 200
     except AssertionError:
-        return jsonify({'message': {'name': 'invalid token'}})
+        return jsonify({'message': {'name': 'invalid token'}}), 403
 
 
 app.run(port=4010, host='127.0.0.1')

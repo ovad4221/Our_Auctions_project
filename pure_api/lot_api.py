@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
 from api_help_function import secure_check, check_si
@@ -14,13 +14,12 @@ class LotResource(Resource):
             assert lot, 'lot not found'
             payload = dict()
             payload['things'] = [(elem.thing_id, elem.count) for elem in lot.lo_thi_bits]
-            return jsonify({'lot': dict(
-                tuple(lot.to_dict(only=(
-                    'name', 'about', 'start_price', 'price', 'buyer_id', 'auction_id',
-                    'user_id')).items()) + tuple(
-                    payload.items()))})
+            return {'lot': dict(tuple(lot.to_dict(only=(
+                'name', 'about', 'start_price', 'price', 'buyer_id', 'auction_id',
+                'user_id')).items()) + tuple(
+                payload.items()))}, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}})
+            return {'message': {'name': str(e)}}, 404
 
     @secure_check
     def put(self, lot_id):
@@ -41,11 +40,11 @@ class LotResource(Resource):
                     assert user, 'user not found'
                     lot.user = user
                 else:
-                    return jsonify({'message': {'name': 'lot have no this property'}})
+                    return {'message': {'name': 'lot have no this property'}}, 405
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return {'message': {'success': 'ok'}}, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}})
+            return {'message': {'name': str(e)}}, 404
 
     @secure_check
     def delete(self, lot_id):
@@ -57,9 +56,9 @@ class LotResource(Resource):
                 db_sess.delete(lo_thi_bit)
             db_sess.delete(lot)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return {'message': {'success': 'ok'}}, 200
         except AssertionError:
-            return jsonify({'message': {'name': 'lot not found'}})
+            return {'message': {'name': 'lot not found'}}, 404
 
 
 class LotListResource(Resource):
@@ -67,20 +66,22 @@ class LotListResource(Resource):
     def get(self):
         # получает {'ids': [1, 2, 3, 4, 5, 6...]}
         if not request.json:
-            return jsonify({'message': {'name': 'empty request'}})
+            return {'message': {'name': 'empty request'}}, 400
         if 'ids' not in request.json:
-            return jsonify({'message': {'name': 'invalid parameters'}})
+            return {'message': {'name': 'invalid parameters'}}, 400
         ids = request.json['ids']
         db_sess = create_session()
-        payload = {'lot': []}
+        payload = {'lots': []}
         try:
             for lot_id in ids:
                 lot = db_sess.query(Lot).get(lot_id)
                 assert lot, str(lot_id)
-                payload['lot'].append(lot.to_dict(only=('name', 'about', 'price')))
-            return jsonify(payload)
+                payload['lots'].append(dict(
+                    tuple(lot.to_dict(only=('name', 'about', 'price')).items()) + tuple(
+                        {'things': [(elem.thing_id, elem.count) for elem in lot.lo_thi_bits]}.items())))
+            return payload, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': f'{str(e)} photo not found'}})
+            return {'message': {'name': f'{str(e)} photo not found'}}, 404
 
     @secure_check
     def post(self):
@@ -95,6 +96,7 @@ class LotListResource(Resource):
 
             assert request.json, 'empty request'
             assert 'list_ids' in request.json, 'invalid parameters'
+
             for thing_id, count in request.json['list_ids']:
                 thing = db_sess.query(Thing).get(thing_id)
                 assert thing, f'{thing_id} thing not found'
@@ -115,6 +117,6 @@ class LotListResource(Resource):
 
             db_sess.add(lot)
             db_sess.commit()
-            return jsonify({'message': {'success': 'ok'}})
+            return {'message': {'success': 'ok'}}, 200
         except AssertionError as e:
-            return jsonify({'message': {'name': str(e)}})
+            return {'message': {'name': str(e)}}, 404
