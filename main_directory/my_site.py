@@ -255,9 +255,9 @@ def edit_lot(lot_id):
         form.name.data = lot['name']
         form.about.data = lot['about']
 
-        form.price.data = edit_thing['price'].split()[0]
+        form.price.data = lot['price'].split()[0]
 
-        form.units_money.data = edit_thing['price'].split()[1]
+        form.units_money.data = lot['price'].split()[1]
 
     if form.validate_on_submit():
         edit_lot_query = put(f'http://127.0.0.1:5000/api/lots{lot_id}',

@@ -40,96 +40,25 @@
   </button>
 </div>
 
-<div class="auction-cards">
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
+{% for lot in lots %}
+    <div class="account_lot">
+        <h3 class="lot-name">{{ lot.name }} </h3>
+        <p class="lot-about">{{ lot.about }}</p>
 
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner_4.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner_2.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner_3.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner_4.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner_3.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner_2.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner_3.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-
-  <div class="card" style="width: 18rem;">
-  <img src="{{ url_for('static', filename='images/auction_banner_4.png')}}" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Перейти</a>
-  </div>
-  </div>
-</div>
-
+        <div class="account-thing-cards">
+            {% for thing in lot.things %}
+          <div class="auction-thing-card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">{{thing.name}}</h5>
+            <p class="card-text">{{thing.about}}</p>
+            <p class="card-text">Цена: {{thing.price}}</p>
+            <p class="card-text">Кол-во: {{thing.count}}</p>
+          </div>
+          </div>
+            {% endfor %}
+    </div>
+        <h5 class="lot-price">Цена: {{lot.price}}</h5>
+        <a href="/delete_lot/{{lot.id}}" class="btn btn-secondary">Перейти</a>
+    </div>
+   {% endfor %}
 {% endblock %}
