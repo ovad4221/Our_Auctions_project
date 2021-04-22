@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
-from api_help_function import secure_check
+from api_help_function import *
 from all_parsers import parser_review, parser_put
 
 
@@ -11,12 +11,13 @@ class ReviewResource(Resource):
         try:
             db_sess = create_session()
             review = db_sess.query(Review).get(review_id)
-            assert review, 'review not found'
+            if not review:
+                raise NotFoundError('review')
             return {'content': review.content,
                     'auction_id': review.auction_id,
                     'creator_id': review.creator_id}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
     @secure_check
     def put(self, review_id):
@@ -24,36 +25,40 @@ class ReviewResource(Resource):
             data = parser_put.parse_args().data
             db_sess = create_session()
             review = db_sess.query(Review).get(review_id)
-            assert review, 'photo not found'
+            if not review:
+                raise NotFoundError('review')
             for key in data:
                 if key == 'content':
                     review.content = data[key]
                 if key == 'auction_id':
                     auction = db_sess.query(Auction).get(data[key])
-                    assert auction, 'auction not found'
+                    if not auction:
+                        raise NotFoundError('auction')
                     review.auction = auction
                 elif key == 'creator_id':
                     creator = db_sess.query(User).get(data[key])
-                    assert creator, 'creator not found'
+                    if not creator:
+                        raise NotFoundError('creator')
                     review.creator = creator
                 else:
                     return {'message': {'name': 'review have no this property'}}, 405
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
     @secure_check
     def delete(self, review_id):
         try:
             db_sess = create_session()
             review = db_sess.query(Review).get(review_id)
-            assert review
+            if not review:
+                raise NotFoundError('review')
             db_sess.delete(review)
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError:
-            return {'message': {'name': 'review not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
 
 class ReviewListResource(Resource):
@@ -70,11 +75,12 @@ class ReviewListResource(Resource):
         try:
             for review_id in ids:
                 review = db_sess.query(Review).get(review_id)
-                assert review, str(review_id)
-                payload['photos'].append(review.to_dict(only=('content',)))
+                if not review:
+                    raise NotFoundError(str(review_id))
+                payload['reviews'].append(review.to_dict(only=('content',)))
             return payload, 200
-        except AssertionError as e:
-            return {'message': {'name': f'{str(e)} review  not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} review not found'}}, 404
 
     @secure_check
     def post(self):
@@ -85,15 +91,17 @@ class ReviewListResource(Resource):
             review.content = args.content
 
             auction = db_sess.query(Auction).get(args.auction_id)
-            assert auction, 'auction not found'
+            if not auction:
+                raise NotFoundError('auction')
             review.auction = auction
 
             creator = db_sess.query(User).get(args.creator_id)
-            assert creator, 'creator not found'
+            if not creator:
+                raise NotFoundError('creator')
             review.creator = creator
 
             db_sess.add(review)
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404

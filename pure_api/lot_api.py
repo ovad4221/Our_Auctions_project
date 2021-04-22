@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from sqalch_data.data.__all_models import *
-from api_help_function import secure_check, check_si
+from api_help_function import *
 from all_parsers import parser_lot, parser_put
 
 
@@ -11,15 +11,16 @@ class LotResource(Resource):
         try:
             db_sess = create_session()
             lot = db_sess.query(Lot).get(lot_id)
-            assert lot, 'lot not found'
+            if not lot:
+                raise NotFoundError('lot')
             payload = dict()
-            payload['things'] = [(elem.thing_id, elem.count) for elem in lot.lo_thi_bits]
+            payload['things'] = [(elem.thing_id, elem.count_thing) for elem in lot.lo_thi_bits]
             return {'lot': dict(tuple(lot.to_dict(only=(
                 'name', 'about', 'start_price', 'price', 'buyer_id', 'auction_id',
                 'user_id')).items()) + tuple(
                 payload.items()))}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
     @secure_check
     def put(self, lot_id):
@@ -27,38 +28,42 @@ class LotResource(Resource):
             data = parser_put.parse_args().data
             db_sess = create_session()
             lot = db_sess.query(Lot).get(lot_id)
-            assert lot, 'lot not found'
+            if not lot:
+                raise NotFoundError('lot')
             for key in data:
                 if key in ['name', 'about', 'start_price', 'price', 'buyer_id']:
                     exec(f'lot.{key}=data[key]')
                 elif key == 'auction_id':
                     auction = db_sess.query(Auction).get(data[key])
-                    assert auction, 'auction not found'
+                    if not auction:
+                        raise NotFoundError('auction')
                     lot.auction = auction
                 elif key == 'user_id':
                     user = db_sess.query(User).get(data[key])
-                    assert user, 'user not found'
+                    if not user:
+                        raise NotFoundError('user')
                     lot.user = user
                 else:
                     return {'message': {'name': 'lot have no this property'}}, 405
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
     @secure_check
     def delete(self, lot_id):
         try:
             db_sess = create_session()
             lot = db_sess.query(Lot).get(lot_id)
-            assert lot
+            if not lot:
+                raise NotFoundError('lot')
             for lo_thi_bit in lot.lo_thi_bits:
                 db_sess.delete(lo_thi_bit)
             db_sess.delete(lot)
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError:
-            return {'message': {'name': 'lot not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
 
 
 class LotListResource(Resource):
@@ -75,13 +80,14 @@ class LotListResource(Resource):
         try:
             for lot_id in ids:
                 lot = db_sess.query(Lot).get(lot_id)
-                assert lot, str(lot_id)
+                if not lot:
+                    raise NotFoundError(str(lot_id))
                 payload['lots'].append(dict(
                     tuple(lot.to_dict(only=('name', 'about', 'price')).items()) + tuple(
-                        {'things': [(elem.thing_id, elem.count) for elem in lot.lo_thi_bits]}.items())))
+                        {'things': [(elem.thing_id, elem.count_thing) for elem in lot.lo_thi_bits]}.items())))
             return payload, 200
-        except AssertionError as e:
-            return {'message': {'name': f'{str(e)} photo not found'}}, 404
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} lot not found'}}, 404
 
     @secure_check
     def post(self):
@@ -94,20 +100,27 @@ class LotListResource(Resource):
             if args.about:
                 lot.about = args.about
 
-            assert check_si(args.start_price), 'invalid form of price'
+            if not check_si(args.start_price):
+                raise NotCorrectFormError('start_price')
             lot.start_price = lot.price = args.start_price
 
             user = db_sess.query(User).get(args.user_id)
-            assert user, 'user not found'
+            if not user:
+                raise NotFoundError('user')
             lot.user = user
 
-            assert request.json, 'empty request'
-            assert 'list_ids' in request.json, 'invalid parameters'
+            if not request.json:
+                return {'message': {'name': 'empty request'}}, 400
+            if 'ids' not in request.json:
+                return {'message': {'name': 'invalid parameters'}}, 400
+
             for thing_id, count in request.json['list_ids']:
                 thing = db_sess.query(Thing).get(thing_id)
-                assert thing, f'{thing_id} thing not found'
-                sum_ca = sum([thi_lo_bit.count for thi_lo_bit in thing.thi_lo_bits])
-                assert sum_ca + count <= thing.count, f'{count + sum_ca - thing.count} objects'
+                if not thing:
+                    raise NotFoundError(f'{thing_id} thing')
+                sum_ca = sum([thi_lo_bit.count_thing for thi_lo_bit in thing.thi_lo_bits])
+                if not sum_ca + int(count) <= thing.count:
+                    raise ToManyError(f'not enough objects ({count + sum_ca - thing.count})')
                 l_t_c = LotThingConnect()
                 l_t_c.count_thing = count
                 l_t_c.thing = thing
@@ -117,5 +130,9 @@ class LotListResource(Resource):
             db_sess.add(lot)
             db_sess.commit()
             return {'message': {'success': 'ok'}}, 200
-        except AssertionError as e:
-            return {'message': {'name': str(e)}}, 404
+        except NotCorrectFormError as error:
+            return {'message': {'name': f'invalid form of {str(error)}'}}, 412
+        except NotFoundError as error:
+            return {'message': {'name': f'{str(error)} not found'}}, 404
+        except ToManyError as error:
+            return {'message': {'name': str(error)}}, 412

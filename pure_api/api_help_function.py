@@ -1,6 +1,4 @@
-from werkzeug.security import check_password_hash
 from all_parsers import parser_secure
-from flask import jsonify
 from requests import get
 
 
@@ -23,3 +21,15 @@ def secure_check(func):
 def check_si(string):
     str1 = ''.join(string.split()[0].split('.'))
     return str1.isdigit()
+
+
+class NotFoundError(Exception):
+    pass
+
+
+class ToManyError(Exception):
+    pass
+
+
+class NotCorrectFormError(Exception):
+    pass
