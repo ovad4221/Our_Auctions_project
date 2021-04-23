@@ -1,19 +1,10 @@
-from flask import Flask, make_response, url_for, jsonify, request, render_template, redirect, abort
-from flask_restful import reqparse, abort, Api, Resource
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired
-from pure_api.sqalch_data.data.db_session import *
+from flask import Flask, request, render_template, redirect
 from pure_api.sqalch_data.data.__all_models import *
-import json
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-import datetime
 from models import *
 from requests import get, put, post, delete
-from werkzeug.security import generate_password_hash
 from main_directory.encode_token_function import make_request
 from current_user_class import User
-import os
 
 app = Flask(__name__)
 params = {
@@ -41,7 +32,8 @@ def start():
         things_lot = []
         for thing_i in lot['things']:
             count_thing = thing_i[1]
-            thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()['thing']
+            thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()[
+                'thing']
             things_lot.append({'name': thing['name'], 'about': thing['about'],
                                'price': thing['price'], 'count': count_thing})
         lots.append({'id': lot_id, 'name': lot['name'],
@@ -303,14 +295,17 @@ def account():
     if current_user.is_authenticated:
         user_query = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
                          json=make_request({})).json()['user']
-        things = get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_query['things']})).json()['things']
+        things = \
+        get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_query['things']})).json()[
+            'things']
 
         for lot_id in user_query['lots']:
             lot = get(f'http://127.0.0.1:5000/api/lots/{lot_id}', json=make_request({})).json()['lot']
             things_lot = []
             for thing_i in lot['things']:
                 count_thing = thing_i[1]
-                thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()['thing']
+                thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()[
+                    'thing']
                 things_lot.append({'name': thing['name'], 'about': thing['about'],
                                    'price': thing['price'], 'count': count_thing})
             lots.append({'id': lot_id, 'name': lot['name'],
@@ -330,6 +325,7 @@ def del_thing_while_creating_lot(id):
 
 @login_manager.user_loader
 def load_user(user_id):
+    # print(user_id)
     info = get(f'http://127.0.0.1:5000/api/users/{user_id}', json=make_request({})).json()['user']
 
     user = User(info['email'])
