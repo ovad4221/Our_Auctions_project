@@ -1,10 +1,16 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField,\
+from wtforms import PasswordField, StringField, \
     TextAreaField, SubmitField, BooleanField, SelectField, FloatField
 from wtforms.fields.html5 import EmailField, IntegerField
 from wtforms.validators import DataRequired
 import sqlalchemy
 import datetime
+
+ed_izm_money = ['$ (USD)', '€ (EUR)', '₽ (RUB)', '¢ (AUD)', '₼ (AZN)', '£ (GBP)', '֏ (AMD)', 'Br (BYN)',
+                'лв (BGN)', 'R$ (BRL)', 'ƒ (HUF)', '元 (HKD)', 'kr (DKK)', '₹ (INR)', '₸ (KZT)',
+                'C$ (CAD)', 'с (KGS)', '¥ (CNY)', 'L (MDL)', 'kr (NOK)', 'zł (PLN)', 'lei (RON)', 'S$ (SGD)',
+                'SM (TJS)', '₺ (TRY)', 'T (TMT)', "So'm (UZS)", '₴ (UAH)', 'Kč (CZK)', 'kr (SEK)',
+                'Fr (CHF)', 'R (ZAR)', '₩ (KRW)', '円 (JPY)']
 
 
 class RegisterUser(FlaskForm):
@@ -31,7 +37,6 @@ class LoginForm(FlaskForm):
 class AddThing(FlaskForm):
     ed_izm_size = ['м', 'см', 'дюйм', 'фут']
     ed_izm_mass = ['кг', 'г', 'т', 'фунт']
-    ed_izm_money = ['$', '€', '₽']
 
     name = StringField('Название: ', validators=[DataRequired()])
     height = StringField("Высота: ")
@@ -52,8 +57,6 @@ class AddThing(FlaskForm):
 
 
 class LotForm(FlaskForm):
-    ed_izm_money = ['$', '€', '₽']
-
     name = StringField('Название: ', validators=[DataRequired()])
     about = TextAreaField("Описание: ")
     price = FloatField('Стартовая цена: ')
@@ -66,4 +69,3 @@ class AddThingToLot(FlaskForm):
     count = StringField('Количество: ', validators=[DataRequired()])
 
     submit = SubmitField('Принять')
-

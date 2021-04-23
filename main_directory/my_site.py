@@ -1,9 +1,8 @@
 from flask import Flask, request, render_template, redirect
-from pure_api.sqalch_data.data.__all_models import *
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from models import *
 from requests import get, put, post, delete
-from main_directory.encode_token_function import make_request
+from main_directory.encode_token_function import make_request, money_in_rubles
 from current_user_class import User
 
 app = Flask(__name__)
@@ -25,20 +24,17 @@ login_manager.init_app(app)
 def start():
     all_lots_list = get('http://127.0.0.1:5000/api/get_all_lots', json=make_request({})).json()['lots']
 
-    lots = []
-
-    for lot_id in all_lots_list:
-        lot = get(f'http://127.0.0.1:5000/api/lots/{lot_id}', json=make_request({})).json()['lot']
+    lots = get('http://127.0.0.1:5000/api/lots', json=make_request({'ids': all_lots_list})).json()['lots']
+    lots = sorted(lots, key=lambda x: money_in_rubles(x['price']))
+    for lot_ind in range(len(lots)):
         things_lot = []
-        for thing_i in lot['things']:
-            count_thing = thing_i[1]
-            thing = get(f'http://127.0.0.1:5000/api/things/{thing_i[0]}', json=make_request({})).json()[
-                'thing']
-            things_lot.append({'name': thing['name'], 'about': thing['about'],
-                               'price': thing['price'], 'count': count_thing})
-        lots.append({'id': lot_id, 'name': lot['name'],
-                     'about': lot['about'], 'price': lot['price'],
-                     'things': things_lot})
+        resp = get('http://127.0.0.1:5000/api/things',
+                   json=make_request({'ids': [i[0] for i in lots[lot_ind]['things']]}))
+        if resp:
+            for thing in resp.json()['things']:
+                things_lot.append(thing)
+
+        lots[lot_ind]['things'] = things_lot
 
     return render_template('main_page.html', **params, lots=lots)
 
@@ -296,8 +292,8 @@ def account():
         user_query = get(f'http://127.0.0.1:5000/api/users/{current_user.id}',
                          json=make_request({})).json()['user']
         things = \
-        get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_query['things']})).json()[
-            'things']
+            get('http://127.0.0.1:5000/api/things', json=make_request({'ids': user_query['things']})).json()[
+                'things']
 
         for lot_id in user_query['lots']:
             lot = get(f'http://127.0.0.1:5000/api/lots/{lot_id}', json=make_request({})).json()['lot']

@@ -52,8 +52,8 @@ api.add_resource(CategoryListResource, '/api/categories')
 api.add_resource(ReviewResource, '/api/reviews/<int:review_id>')
 api.add_resource(ReviewListResource, '/api/reviews')
 
-api.add_resource(ReviewResource, '/api/requisites/<int:requisite_id>')
-api.add_resource(ReviewListResource, '/api/requisites')
+api.add_resource(RequisiteResource, '/api/requisites/<int:requisite_id>')
+api.add_resource(RequisiteListResource, '/api/requisites')
 
 api.add_resource(ReadyResource, '/api/readies/<int:ready_id>')
 api.add_resource(ReadyListResource, '/api/readies')
