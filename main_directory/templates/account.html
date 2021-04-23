@@ -6,7 +6,9 @@
     <h1 class="account-name">{{ current_user.name }} {{ current_user.surname }} {% if current_user.patronymic != 'not_indicated'%} {{ current_user.patronymic }} {% endif %}</h1>
     <h2 class="account-email">Email: {{ current_user.email }}</h2>
     <h2 class="account-age">Age: {{ current_user.age }}</h2>
-    <h2 class="account-position">Position: {{ current_user.position }}</h2>
+    {% if current_user.position != 'not_indicated'%}
+    <h2 class="account-position">{{ current_user.position }}</h2>
+    {% endif %}
     <h2 class="my-things">Мои товары: <a class="btn btn-outline-dark plus-button" href="/add_thing" role="button">+</a></h2>
     <div class="account-things">
         <div class="account-thing-cards">
@@ -28,7 +30,7 @@
     <h2 class="my-lots">Мои лоты: <a class="btn btn-outline-dark plus-button" href="/add_lot" role="button">+</a></h2>
 
     {% for lot in lots %}
-    <div class="account_lot">
+    <div class="account-lot">
         <h3 class="lot-name">{{ lot.name }} </h3>
         <p class="lot-about">{{ lot.about }}</p>
 
