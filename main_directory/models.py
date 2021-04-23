@@ -34,11 +34,11 @@ class AddThing(FlaskForm):
     ed_izm_money = ['$', '€', '₽']
 
     name = StringField('Название: ', validators=[DataRequired()])
-    height = FloatField("Высота: ")
-    width = FloatField("Ширина: ")
-    long = FloatField("Длина: ")
+    height = StringField("Высота: ")
+    width = StringField("Ширина: ")
+    long = StringField("Длина: ")
     units_size = SelectField('Единицы измерения размеров: ', choices=ed_izm_size)
-    weight = FloatField("Масса: ")
+    weight = StringField("Масса: ")
     units_mass = SelectField('Единицы измерения массы: ', choices=ed_izm_mass)
     about = TextAreaField("Описание: ")
     colour = StringField('Цвет: ')
