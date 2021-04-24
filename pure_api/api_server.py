@@ -8,6 +8,7 @@ from review_api import *
 from lot_api import *
 from requisite_api import *
 import blueprints_dop_functions
+import api_help_function
 from api_help_function import secure_check
 
 from flask import Flask, jsonify
@@ -20,6 +21,7 @@ api = Api(app)
 global_init('../pure_api/sqalch_data/db/main_database.db')
 
 app.register_blueprint(blueprints_dop_functions.blueprint)
+app.register_blueprint(api_help_function.blueprint)
 
 
 @app.route('/api/get_all_lots')

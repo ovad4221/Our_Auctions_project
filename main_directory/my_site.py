@@ -4,6 +4,7 @@ from models import *
 from requests import get, put, post, delete
 from main_directory.encode_token_function import make_request, money_in_rubles
 from current_user_class import User
+import encode_token_function
 
 app = Flask(__name__)
 params = {
@@ -17,6 +18,7 @@ app.config['UPLOAD_FOLDER'] = '/static/images/thing_user_images'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+app.register_blueprint(encode_token_function.blueprint)
 
 
 @app.route('/')

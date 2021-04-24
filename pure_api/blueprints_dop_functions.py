@@ -1,9 +1,7 @@
 from flask import jsonify, Blueprint, request
-from sqalch_data.data.db_session import *
 from sqalch_data.data.__all_models import *
 from api_help_function import *
-from werkzeug.security import check_password_hash
-import datetime
+
 
 blueprint = Blueprint(
     'blueprints_dop_functions',
